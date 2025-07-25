@@ -69,6 +69,91 @@ a {
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* Glow Shit for LoginPage p-tag */
+@layer utilities {
+  .retro-glow {
+    color: #E67F3C;
+    text-shadow:
+      0 0 1px #E67F3C,
+      0 0 2px #E67F3C,
+      0 0 4px #E67F3C;
+    animation: retro-blink 3s ease-in-out infinite;
+  }
+
+  @keyframes retro-blink {
+
+    0%,
+    100% {
+      text-shadow:
+        0 0 1px #E67F3C,
+        0 0 2px #E67F3C,
+        0 0 4px #E67F3C;
+      opacity: 1;
+    }
+
+    30% {
+      text-shadow:
+        0 0 1px #E67F3C,
+        0 0 1px #E67F3C,
+        0 0 2px #E67F3C;
+      opacity: 0.85;
+    }
+
+    60% {
+      text-shadow:
+        0 0 2px #E67F3C,
+        0 0 3px #E67F3C,
+        0 0 6px #E67F3C;
+      opacity: 1;
+    }
+
+    80% {
+      text-shadow:
+        0 0 0px #E67F3C,
+        0 0 0px #E67F3C;
+      opacity: 0.7;
+    }
+  }
+}
+
+/* Marquee for the auto-scrolling featured events banner */
+@layer utilities {
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
+  }
+
+  @keyframes marquee {
+    0% {
+      transform: translateX(0%);
+    }
+
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+}
+
+/* Animate Gradient y */
+.animate-gradient-y {
+  background: linear-gradient(to bottom, #2D4C51, #E67F3C, #2D4C51);
+  background-size: 100% 300%;
+  animation: gradientYFlow 4s linear infinite;
+}
+
+@keyframes gradientYFlow {
+  0% {
+    background-position: 0% 0%;
+  }
+
+  50% {
+    background-position: 0% 100%;
+  }
+
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
