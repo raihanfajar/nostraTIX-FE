@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { bitcount } from "@/lib/fonts"; // 1. Impor font custom Anda
 import "./globals.css";
 
 const geistSans = Geist({
@@ -24,7 +25,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      {/* 2. Tambahkan variabel font Anda di sini */}
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${bitcount.variable} h-[5000px]`}
+      >
         {children}
       </body>
     </html>
