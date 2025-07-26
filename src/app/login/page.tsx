@@ -8,6 +8,7 @@ const LoginPage = () => {
         <div className="absolute right-0 top-0 h-full w-1 animate-gradient-y" />
 
         <div className="flex flex-col gap-4">
+          <Image className="ml-24" src="/NostraTixLogoTicket.png" alt="Logo" width={200} height={200} />
           <h1 className="text-4xl font-bold font-anton text-[#DDDEDF]">
             Welcome to <span className="text-[#F5DFAD]">Nostra</span><span className="text-[#E67F3C]">Tik</span>
           </h1>
