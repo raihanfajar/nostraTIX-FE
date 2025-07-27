@@ -1,10 +1,9 @@
-import Navbar from "@/components/Navbar";
+import Jumbotron from "@/components/Jumbotron";
 
 export default function Home() {
   return (
-    <>
-      <Navbar />
-      <div className="">asdjhlvasldjhvashjkd</div>
-    </>
+    <div className="container px-4 mx-auto">
+    <Jumbotron/>
+    </div>
   );
 }
