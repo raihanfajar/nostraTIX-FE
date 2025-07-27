@@ -69,6 +69,24 @@ a {
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* ===== Efek Cahaya TV ===== */
+@keyframes tvGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px 5px rgba(245, 223, 173, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 30px 10px rgba(245, 223, 173, 0.6);
+  }
+}
+
+.animate-tv-glow {
+  animation: tvGlow 4s ease-in-out infinite;
+}
+
+.font-bitcount {
+  font-family: var(--font-bitcount);
+}
+
 /* Glow Shit for LoginPage p-tag */
 @layer utilities {
   .retro-glow {
