@@ -28,7 +28,7 @@ export default function RootLayout({
     <html lang="en">
       {/* 2. Tambahkan variabel font Anda di sini */}
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${bitcount.variable} h-[5000px]`}
+        className={`${geistSans.variable} ${geistMono.variable} ${bitcount.variable}`}
       >
         <Navbar />
         {children}
