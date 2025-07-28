@@ -4,7 +4,7 @@ const LoginPage = () => {
   return (
     <main className="min-h-screen flex bg-[#173236] text-[#DDDEDF]">
       {/* SIDE BANNER S */}
-      <section className="hidden md:flex flex-col pt-28 w-2/3 px-16 bg-[#173236] shadow-[10px_0_20px_-5px_rgba(0,0,0,0.6)] z-20 relative">
+      <section className="hidden md:flex flex-col pt-20 w-[60%] px-16 bg-[#173236] shadow-[10px_0_20px_-5px_rgba(0,0,0,0.6)] z-20 relative">
         <div className="absolute right-0 top-0 h-full w-1 animate-gradient-y" />
 
         <div className="flex flex-col gap-4">
@@ -19,7 +19,7 @@ const LoginPage = () => {
           </p>
         </div>
 
-        <div className="mt-auto">
+        <div className="mt-5">
           <h1 className="text-3xl font-bold mb-4 font-anton text-[#DDDEDF]">Sneak peek at what we cover</h1>
           <div className="relative overflow-hidden w-full h-40">
             <div className="absolute flex gap-6 animate-marquee whitespace-nowrap">
@@ -56,7 +56,7 @@ const LoginPage = () => {
       {/* SIDE BANNER E */}
 
       {/* LOGIN SECTION S */}
-      <section className="flex w-full md:w-1/3 items-center justify-center px-8 py-16 bg-[#F5DFAD] z-10 relative">
+      <section className="flex w-full md:w-[40%] items-center justify-center px-8 py-16 bg-[#F5DFAD] z-10 relative">
         <div className="w-full max-w-sm rounded-2xl shadow-2xl drop-shadow-xl border border-[#2D4C51] px-6 sm:px-8 md:px-10 py-10 sm:py-12 bg-[#173236] transition-all duration-300">
 
           <h1 className="text-3xl font-bold text-[#F5DFAD] mb-3 font-anton">
