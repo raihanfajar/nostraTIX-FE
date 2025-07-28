@@ -1,8 +1,9 @@
+import Jumbotron from "@/components/Jumbotron";
 
 export default function Home() {
   return (
-    <section>
-
-    </section>
+    <div className="container px-4 mx-auto">
+    <Jumbotron/>
+    </div>
   );
 }
