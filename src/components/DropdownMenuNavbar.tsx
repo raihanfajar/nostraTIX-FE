@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { Menu, X, Moon, LogIn, UserPlus } from "lucide-react";
-import Link from "next/link";
 import { useOnClickOutside } from "@/hooks/useOnClickOutside";
+import { LogIn, Menu, UserPlus, X } from "lucide-react";
+import Link from "next/link";
+import { useRef, useState } from "react";
 
 export const DropdownMenu = () => {
   const [isOpen, setIsOpen] = useState(false);

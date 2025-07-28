@@ -17,7 +17,7 @@ const Navbar = () => {
     return null;
   }
 
-  const handleScrollToTop = (e: any) => {
+  const handleScrollToTop = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (pathname === "/") {
       e.preventDefault();
       window.scrollTo({

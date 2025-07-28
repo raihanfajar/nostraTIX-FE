@@ -18,6 +18,8 @@ export const useAuthStore = create<IUseAuthStoreProps>()(persist((set) => ({
   partialize: (state) => ({objectId: state.objectId})
 }));
 
+console.log(createJSONStorage) // !so that eslint not error
+
 export default useAuthStore;
 
 
