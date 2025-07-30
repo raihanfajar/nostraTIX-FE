@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image"; // 1. Impor Image
+import Image from "next/image";
 import { ChevronUp, ChevronDown, Plus, Minus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -10,32 +10,35 @@ import {
   CarouselItem,
   type CarouselApi,
 } from "@/components/ui/carousel";
-import Autoplay from "embla-carousel-autoplay"; // 2. Impor Autoplay
-
-const images = [
-  "/contohBanner.webp",
-  "/contohBanner.webp",
-  "/NostraTixLogo.png",
-  "/NostraTixLogoTicket.png",
-];
+import Autoplay from "embla-carousel-autoplay";
+import { getBanner } from "@/hooks/getBanner";
 
 const Jumbotron = () => {
   const [api, setApi] = React.useState<CarouselApi>();
-  React.useEffect(() => {
-    if (!api) return;
-  }, [api]);
-
-  // 3. Inisialisasi plugin Autoplay
   const plugin = React.useRef(
     Autoplay({ delay: 3500, stopOnInteraction: false }),
   );
 
+  const [banners, setBanners] = React.useState<string[]>([]); // state untuk banner
+
+  React.useEffect(() => {
+    const fetchBanner = async () => {
+      try {
+        const banners = await getBanner();
+        console.log("Fetched banners:", banners);
+        setBanners(banners); // langsung set array of string
+      } catch (err) {
+        console.error("Failed to fetch banner:", err);
+      }
+    };
+
+    fetchBanner();
+  }, []);
+
   return (
-    // Bagian luar tidak perlu diubah
     <div className="mt-10 w-full rounded-2xl border-4 border-[#F5DFAD] p-6">
       <div className="animate-tv-glow w-full overflow-hidden rounded-2xl border-2 border-[#F5DFAD] md:h-80">
         <div className="mx-auto w-full">
-          {" "}
           <Carousel
             setApi={setApi}
             className="w-full"
@@ -44,20 +47,21 @@ const Jumbotron = () => {
               loop: true,
             }}
           >
-            <CarouselContent>
-              {images.map((src, index) => (
-                <CarouselItem key={index}>
-                  <Card className="border-0">
-                    {/* 5. Ganti konten Card dengan komponen Image */}
-                    <CardContent className="relative flex h-36 w-full items-center justify-center md:h-80">
-                      <Image
-                        src={src}
-                        alt={`Carousel image ${index + 1}`}
-                        layout="fill"
-                        objectFit="fill"
-                      />
-                    </CardContent>
-                  </Card>
+            <CarouselContent className="m-0">
+              {banners.map((src, index) => (
+                <CarouselItem
+                  key={index}
+                  className="m-0 p-0" // hilangkan semua padding/margin
+                >
+                  <div className="relative h-36 w-full md:h-80">
+                    <Image
+                      src={src}
+                      alt={`Carousel image ${index + 1}`}
+                      fill
+                      className="object-cover"
+                      sizes="100vw"
+                    />
+                  </div>
                 </CarouselItem>
               ))}
             </CarouselContent>
