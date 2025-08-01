@@ -35,7 +35,7 @@ const Navbar = () => {
         <div className="animate-gradient-nav top-0 left-0 h-[3px] w-full" />
         <div className="my-3 flex items-center justify-between px-4">
           {/* Logo */}
-          <Link href="/" onClick={handleScrollToTop}>
+          <Link href="/" onClick={handleScrollToTop} >
             <Image
               src="/NostraTixLogo.png"
               width={200}

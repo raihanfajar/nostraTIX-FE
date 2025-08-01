@@ -3,7 +3,6 @@
 import * as React from "react";
 import Image from "next/image";
 import { ChevronUp, ChevronDown, Plus, Minus } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Carousel,
   CarouselContent,
@@ -11,7 +10,7 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
-import { getBanner } from "@/hooks/getBanner";
+import { getBanner } from "@/services/getBanner";
 
 const Jumbotron = () => {
   const [api, setApi] = React.useState<CarouselApi>();
@@ -20,15 +19,19 @@ const Jumbotron = () => {
   );
 
   const [banners, setBanners] = React.useState<string[]>([]); // state untuk banner
+  const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
     const fetchBanner = async () => {
+      setIsLoading(true);
       try {
         const banners = await getBanner();
         console.log("Fetched banners:", banners);
         setBanners(banners); // langsung set array of string
       } catch (err) {
         console.error("Failed to fetch banner:", err);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -39,33 +42,36 @@ const Jumbotron = () => {
     <div className="mt-10 w-full rounded-2xl border-4 border-[#F5DFAD] p-6">
       <div className="animate-tv-glow w-full overflow-hidden rounded-2xl border-2 border-[#F5DFAD] md:h-80">
         <div className="mx-auto w-full">
-          <Carousel
-            setApi={setApi}
-            className="w-full"
-            plugins={[plugin.current]}
-            opts={{
-              loop: true,
-            }}
-          >
-            <CarouselContent className="m-0">
-              {banners.map((src, index) => (
-                <CarouselItem
-                  key={index}
-                  className="m-0 p-0" // hilangkan semua padding/margin
-                >
-                  <div className="relative h-36 w-full md:h-80">
-                    <Image
-                      src={src}
-                      alt={`Carousel image ${index + 1}`}
-                      fill
-                      className="object-cover"
-                      sizes="100vw"
-                    />
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
+          {isLoading ? (
+            // Jika isLoading true, tampilkan Skeleton
+            <div className="skeleton h-36 w-full md:h-80"></div>
+          ) : (
+            // Jika isLoading false, tampilkan Carousel
+            <Carousel
+              setApi={setApi}
+              className="w-full"
+              plugins={[plugin.current]}
+              opts={{
+                loop: true,
+              }}
+            >
+              <CarouselContent className="m-0">
+                {banners.map((src, index) => (
+                  <CarouselItem key={index} className="m-0 p-0">
+                    <div className="relative h-36 w-full hover:cursor-grab active:cursor-grabbing md:h-80">
+                      <Image
+                        src={src}
+                        alt={`Carousel image ${index + 1}`}
+                        fill
+                        className="object-fill"
+                        sizes="100vw"
+                      />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
+          )}
         </div>
       </div>
       <div className="mt-6 flex items-center">
