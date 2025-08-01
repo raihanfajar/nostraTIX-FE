@@ -6,8 +6,7 @@ import { ChevronUp, ChevronDown, Plus, Minus } from "lucide-react";
 import {
   Carousel,
   CarouselContent,
-  CarouselItem,
-  type CarouselApi,
+  CarouselItem
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { getBanner } from "@/services/getBanner";
