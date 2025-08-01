@@ -3,6 +3,7 @@
 import EventList from "@/components/EventList";
 import Jumbotron from "@/components/Jumbotron";
 import Link from "next/link";
+import { Suspense } from "react";
 
 export default function Home() {
   return (
@@ -15,7 +16,9 @@ export default function Home() {
         </div>
       </div>
       <div className="animate-gradient-nav top-0 left-0 mt-5 h-[3px] w-full" />
-      <EventList />
+      <Suspense>
+        <EventList />
+      </Suspense>
     </div>
   );
 }
