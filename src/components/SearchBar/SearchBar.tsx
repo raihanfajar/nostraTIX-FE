@@ -75,7 +75,7 @@ const SearchBar = () => {
 
   return (
     <div className="mt-10 px-5">
-      <div className="grid w-full gap-4 rounded-3xl border-2 border-[#F5DFAD] bg-[#224046]/50 p-5 md:grid-cols-3  2xl:grid-cols-5">
+      <div className="grid w-full gap-4 rounded-3xl border-2 border-[#F5DFAD] bg-[#224046]/50 p-5 md:grid-cols-3  2xl:grid-cols-5 border:animate-gradient-nav">
         {/* Search */}
         <div className="flex items-center gap-1 max-w-sm">
           <Search className="mr-1 text-[#F5DFAD]" />

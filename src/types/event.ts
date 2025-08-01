@@ -1,11 +1,11 @@
 export interface EventWithPicture {
-  id: string;
-  organizerId: string;
-  name: string;
-  slug: string;
-  description: string;
+  id: String;
+  organizerId: String;
+  name: String;
+  slug: String;
+  description: String;
   category: String;
-  location: string;
+  location: String;
   startDate: Date;
   endDate: Date;
   totalRating: number;
@@ -18,19 +18,19 @@ export interface EventWithPicture {
 export interface EventResponse {
   data: {
     result: EventWithPicture[];
-    message: string;
-    success: boolean;
+    message: String;
+    success: Boolean;
   };
 }
 
 export interface EventPicture {
   id: string;
-  banner: string;
-  picture1: string;
+  banner: String;
+  picture1: String;
   picture2?: String;
   picture3?: String;
 }
 
 export interface Category {
-  category: string;
+  category: String;
 }

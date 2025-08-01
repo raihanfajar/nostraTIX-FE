@@ -21,9 +21,6 @@ export const getEvents = async (filters: IParams = {}) => {
   return res.data.data.result;
 };
 
-interface ApiResponse<T> {
-  data: T;
-}
 
 export const getEventCategories = async (): Promise<Category[]> => {
   const res = await axiosInstance.get<string[]>(`/events/categories`);

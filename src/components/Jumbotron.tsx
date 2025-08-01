@@ -13,7 +13,6 @@ import Autoplay from "embla-carousel-autoplay";
 import { getBanner } from "@/services/getBanner";
 
 const Jumbotron = () => {
-  const [api, setApi] = React.useState<CarouselApi>();
   const plugin = React.useRef(
     Autoplay({ delay: 3500, stopOnInteraction: false }),
   );
@@ -26,8 +25,9 @@ const Jumbotron = () => {
       setIsLoading(true);
       try {
         const banners = await getBanner();
+        const bannersAsPrimitives = banners.map(String); 
         console.log("Fetched banners:", banners);
-        setBanners(banners); // langsung set array of string
+        setBanners(bannersAsPrimitives); // langsung set array of string
       } catch (err) {
         console.error("Failed to fetch banner:", err);
       } finally {
@@ -48,7 +48,6 @@ const Jumbotron = () => {
           ) : (
             // Jika isLoading false, tampilkan Carousel
             <Carousel
-              setApi={setApi}
               className="w-full"
               plugins={[plugin.current]}
               opts={{
