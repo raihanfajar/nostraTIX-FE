@@ -8,6 +8,7 @@ import { EventWithPicture } from "@/types/event";
 import FormattedEventDate from "@/utils/formatEventDate";
 import { useSearchParams } from "next/navigation";
 import EventListSkeleton from "./EventListSkeleton";
+import { IParams } from "@/types/params";
 
 const EventList = () => {
   const [events, setEvents] = useState<EventWithPicture[]>([]);
@@ -20,9 +21,12 @@ const EventList = () => {
     const fetchEvents = async () => {
       setIsLoading(true);
 
-      const filters = {
+      const filters: IParams = {
         name: searchParams.get("name"),
-        category: searchParams.get("category"),
+        category:
+          searchParams.getAll("category").length > 0
+            ? searchParams.getAll("category")
+            : null,
         countryId: searchParams.get("countryId"),
         cityId: searchParams.get("cityId"),
         location: searchParams.get("location"),
