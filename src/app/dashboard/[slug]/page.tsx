@@ -1,12 +1,11 @@
 import React from "react";
 
-const OrganizerDashboardPage = async ({
-  params,
-}: {
-  params: { slug: string };
-}) => {
-  const slug = params.slug;
+interface PageProps {
+  params: Promise<{ slug: string }>;
+}
 
+const OrganizerDashboardPage = async ({ params }: PageProps) => {
+  const { slug } = await params; // ← await the promise
   console.log(slug);
 
   return (
@@ -16,7 +15,7 @@ const OrganizerDashboardPage = async ({
       </header>
 
       <section>
-        <p>Conditional Render Here</p>
+        <p>Conditional Render Here for {slug}</p>
       </section>
     </main>
   );

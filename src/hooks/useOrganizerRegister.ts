@@ -1,7 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 // import { useRouter } from 'next/navigation';
 import { axiosInstance } from '@/utils/axiosInstance';
-import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 
@@ -21,7 +20,7 @@ interface RegisterOrganizerResponse {
 export function useOrganizerRegister() {
     const router = useRouter();
 
-    return useMutation<RegisterOrganizerResponse, AxiosError, RegisterPayload>({
+    return useMutation<RegisterOrganizerResponse, Error, RegisterPayload>({
         mutationFn: async (payload) => {
             console.log(payload);
             const { data } = await axiosInstance.post<RegisterOrganizerResponse>('api/auth/register-organizer', payload);
@@ -32,8 +31,8 @@ export function useOrganizerRegister() {
             toast.success(data.result.message);
             router.replace("/");
         },
-        onError: (error) => {
-            const message = (error.response?.data as { message?: string })?.message || 'Login failed';
+        onError: () => {
+            const message = 'Register Failed';
             toast.error(message);
         },
     });

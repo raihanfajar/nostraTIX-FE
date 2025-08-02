@@ -1,7 +1,6 @@
 import { useAuthStore } from '@/store/useAuthStore';
 import { axiosInstance } from '@/utils/axiosInstance';
 import { useMutation } from '@tanstack/react-query';
-import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 
@@ -28,7 +27,7 @@ export function useOrganizerLogin() {
     const router = useRouter();
     const setAuth = useAuthStore((state) => state.setAuth);
 
-    return useMutation<OrganizerLoginResponse, AxiosError, OrganizerLoginPayload>({
+    return useMutation<OrganizerLoginResponse, Error, OrganizerLoginPayload>({
         mutationFn: async (payload) => {
             const { data } = await axiosInstance.post<OrganizerLoginResponse>('api/auth/login-organizer', payload);
             return data;
@@ -39,8 +38,8 @@ export function useOrganizerLogin() {
             toast.success(data.result.message);
             router.replace(`/dashboard/${slug}`);
         },
-        onError: (error) => {
-            const message = (error.response?.data as { message?: string })?.message || 'Login failed';
+        onError: () => {
+            const message = 'Login failed';
             toast.error(message);
         },
     });

@@ -1,7 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 // import { useRouter } from 'next/navigation';
 import { axiosInstance } from '@/utils/axiosInstance';
-import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 
@@ -22,7 +21,7 @@ interface RegisterUserResponse {
 export function useUserRegister() {
     const router = useRouter();
 
-    return useMutation<RegisterUserResponse, AxiosError, RegisterPayload>({
+    return useMutation<RegisterUserResponse, Error, RegisterPayload>({
         mutationFn: async (payload) => {
             console.log(payload);
             const { data } = await axiosInstance.post<RegisterUserResponse>('api/auth/register-user', payload);
@@ -33,8 +32,8 @@ export function useUserRegister() {
             toast.success(data.result.message);
             router.replace("/");
         },
-        onError: (error) => {
-            const message = (error.response?.data as { message?: string })?.message || 'Login failed';
+        onError: () => {
+            const message = 'Register Failed';
             toast.error(message);
         },
     });
