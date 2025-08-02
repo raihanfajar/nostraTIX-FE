@@ -10,7 +10,12 @@ const Navbar = () => {
   const pathname = usePathname();
 
   // 1. Kondisi utama untuk menampilkan atau menyembunyikan seluruh navbar
-  const showNavbar = pathname !== "/login" && pathname !== "/register";
+  const showNavbar =
+    pathname !== "/login" &&
+    pathname !== "/register" &&
+    pathname !== "/login/organizer" &&
+    pathname !== "/register/organizer" &&
+    !pathname.includes("/dashboard"); // !Learn how to exclude slug, ghazi did it like this, is it the best method?
 
   // 2. Jika kondisi tidak terpenuhi, render "tidak ada apa-apa"
   if (!showNavbar) {
