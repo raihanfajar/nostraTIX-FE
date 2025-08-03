@@ -13,7 +13,7 @@ You can literally tick the boxes one by one; the backend can follow later.
 
 ---
 
-### 🎯 Phase 0 – One-time scaffolding (30 min)
+### 🎯 Phase 0 – One-time scaffolding (30 min) DONE
 
 | Task | What you do                                                    |
 | ---- | -------------------------------------------------------------- |
@@ -27,7 +27,7 @@ You can literally tick the boxes one by one; the backend can follow later.
 
 ---
 
-### 🧩 Phase 1 – Make the sidebar dynamic
+### 🧩 Phase 1 – Make the sidebar dynamic DONE
 
 Replace the placeholder items with **real tabs**:
 

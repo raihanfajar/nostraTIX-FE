@@ -19,6 +19,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,30 +28,30 @@ import {
 } from "../ui/dropdown-menu";
 
 // Menu items.
-const items = [
+const orgNav = [
   {
-    title: "Home",
-    url: "#",
+    title: "Overview",
+    url: "./overview",
     icon: Home,
   },
   {
-    title: "Inbox",
-    url: "#",
-    icon: Inbox,
-  },
-  {
-    title: "Calendar",
-    url: "#",
+    title: "My Events",
+    url: "./events",
     icon: Calendar,
   },
   {
-    title: "Search",
-    url: "#",
+    title: "Transactions",
+    url: "./transactions",
+    icon: Inbox,
+  },
+  {
+    title: "Analytics",
+    url: "./analytics",
     icon: Search,
   },
   {
-    title: "Settings",
-    url: "#",
+    title: "Profile",
+    url: "./profile",
     icon: Settings,
   },
 ];
@@ -63,13 +64,13 @@ export function AppSidebar() {
           <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {orgNav.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
+                    <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
