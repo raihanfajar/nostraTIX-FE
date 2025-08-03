@@ -1,6 +1,6 @@
 "use client";
 import AuthMainLeftSection from "@/components/AuthMainLeftSection";
-import { useUserLogin } from "@/hooks/useUserLogin";
+import { useUserLogin } from "@/hooks/auth/useUserLogin";
 import { loginUserVS } from "@/utils/validationSchema";
 import { useFormik } from "formik";
 import Link from "next/link";

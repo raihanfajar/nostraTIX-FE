@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useUserRegister } from "@/hooks/useUserRegister";
+import { useUserRegister } from "@/hooks/auth/useUserRegister";
 import { axiosInstance } from "@/utils/axiosInstance";
 import { registerUserVS } from "@/utils/validationSchema";
 import { useFormik } from "formik";
