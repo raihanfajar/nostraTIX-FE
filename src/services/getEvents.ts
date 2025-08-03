@@ -13,6 +13,9 @@ export const getEvents = async (filters: IParams = {}) => {
   if (filters.countryId) params.append("countryId", filters.countryId);
   if (filters.cityId) params.append("cityId", filters.cityId);
   if (filters.location) params.append("location", filters.location);
+  if (filters.page) {
+  params.append("page", String(filters.page));
+}
 
   const res = await axiosInstance.get<EventResponse>(
     `/events?${params.toString()}`,

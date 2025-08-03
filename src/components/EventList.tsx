@@ -30,6 +30,11 @@ const EventList = () => {
         countryId: searchParams.get("countryId"),
         cityId: searchParams.get("cityId"),
         location: searchParams.get("location"),
+        page: (() => {
+          const pageParam = searchParams.get("page");
+          const parsed = pageParam ? parseInt(pageParam) : undefined;
+          return isNaN(parsed as number) ? undefined : parsed;
+        })(),
         limit: 6,
       };
 
@@ -53,14 +58,14 @@ const EventList = () => {
 
   if (isLoading) {
     return (
-      <div className="mt-10 mb-24 grid grid-cols-1 gap-16 md:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-10 mb-10 grid grid-cols-1 gap-16 md:grid-cols-2 lg:grid-cols-3">
         <EventListSkeleton count={3} />
       </div>
     );
   }
 
   return (
-    <section className="mt-10 mb-24">
+    <section className="mt-10 mb-10">
       <div className="grid grid-cols-1 gap-16 md:grid-cols-2 lg:grid-cols-3">
         {events.map((event) => (
           <Link href={`/events/${event.slug}`} key={event.id}>

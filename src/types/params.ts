@@ -5,4 +5,5 @@ export interface IParams {
   countryId?: string | null;
   cityId?: string | null;
   location?: string | null;
+  page?: number;
 }
