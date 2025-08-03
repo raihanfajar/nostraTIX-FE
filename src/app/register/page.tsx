@@ -1,139 +1,323 @@
-'use client'
-import Image from "next/image"
+"use client";
+import AuthMainLeftSection from "@/components/AuthMainLeftSection";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useUserRegister } from "@/hooks/useUserRegister";
+import { axiosInstance } from "@/utils/axiosInstance";
+import { registerUserVS } from "@/utils/validationSchema";
+import { useFormik } from "formik";
+import Link from "next/link";
+import { useState } from "react";
 
-const RegisterPage = () => {
+const RegisterUser = () => {
+  const { mutateAsync: registerUser, isPending } = useUserRegister();
+
+  const [refCodeStatus, setRefCodeStatus] = useState<
+    "NONE" | "VALID" | "INVALID"
+  >("NONE");
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      fullName: "",
+      password: "",
+      confirmPassword: "",
+      refCode: "",
+    },
+    validationSchema: registerUserVS,
+    onSubmit: async (values) => {
+      await registerUser({
+        name: values.fullName,
+        email: values.email,
+        password: values.password,
+        referralCode: values.refCode,
+      });
+    },
+  });
+
+  // Simple referral-code check: must be alphanumeric ≥4 chars
+  const applyReferralCode = async () => {
+    const code = formik.values.refCode.trim();
+    if (!/^[a-zA-Z0-9]{4,}$/.test(code)) {
+      setRefCodeStatus("INVALID");
+      return;
+    }
+
+    try {
+      const { data }: { data: { result: { status: string } } } =
+        await axiosInstance.post("api/auth/validate-referral-code", {
+          referralCode: code,
+        });
+
+      // assuming backend returns { status: string }
+      if (data?.result?.status === "success") {
+        setRefCodeStatus("VALID");
+      } else {
+        setRefCodeStatus("INVALID");
+      }
+    } catch {
+      setRefCodeStatus("INVALID");
+    } finally {
+      setDialogOpen(false);
+    }
+  };
+
   return (
-    <main className="min-h-screen w-full flex overflow-hidden bg-[#173236] text-[#DDDEDF]">
-      {/* LEFT SIDE BANNER */}
-      <section className="hidden md:flex flex-col pt-28 w-2/3 px-16 bg-[#173236] shadow-[10px_0_20px_-5px_rgba(0,0,0,0.6)] relative z-10">
-        {/* Animated Gradient Border */}
-        <div className="absolute right-0 top-0 h-full w-1 animate-gradient-y bg-gradient-to-b from-[#F5DFAD] via-[#E67F3C] to-[#F5DFAD]" />
+    <main className="flex min-h-screen overflow-hidden bg-[#173236] text-[#DDDEDF]">
+      <AuthMainLeftSection />
 
-        {/* Branding */}
-        <div className="flex flex-col gap-4">
-          <Image className="ml-24" src="/NostraTixLogoTicket.png" alt="Logo" width={200} height={200} />
-          <h1 className="text-4xl font-bold font-anton text-[#DDDEDF]">
-            Welcome to <span className="text-[#F5DFAD]">Nostra</span><span className="text-[#E67F3C]">Tik</span>
+      <section className="flex w-full items-center justify-center overflow-y-auto bg-[#F5DFAD] p-8 lg:w-2/5">
+        <div className="w-full max-w-sm rounded-2xl border border-[#2D4C51] bg-[#173236] p-8 shadow-2xl">
+          {/* … header … */}
+          <h1 className="font-anton mb-2 text-3xl font-bold text-[#F5DFAD]">
+            User Register
           </h1>
-          <p className="leading-relaxed text-lg font-lato">
-            Your event ticketing platform made simple and secure.
-            <br />
-            Buy, sell, and scan — all in one place.
-          </p>
-        </div>
-
-        {/* Marquee Section */}
-        <div className="mt-auto pb-8">
-          <h1 className="text-3xl font-bold mb-4 font-anton text-[#DDDEDF]">Sneak peek at what we cover</h1>
-          <div className="relative overflow-hidden w-full h-40">
-            <div className="absolute flex gap-6 animate-marquee whitespace-nowrap">
-              {[
-                { title: "File", image: "/file.svg" },
-                { title: "Globe", image: "/globe.svg" },
-                { title: "Next", image: "/next.svg" },
-                { title: "Vercel", image: "/vercel.svg" },
-                { title: "Window", image: "/window.svg" },
-              ].flatMap((event) => [event, event]).map((event, index) => (
-                <div
-                  key={index}
-                  className="w-48 flex-shrink-0 rounded-xl overflow-hidden border border-[#2D4C51] shadow-md bg-[#22406]"
-                >
-                  <div className="flex items-center justify-center h-24 bg-[#173236]">
-                    <Image src={event.image} alt={event.title} width={100} height={100} className="h-12 w-auto" />
-                  </div>
-                  <div className="p-2 text-center text-sm text-[#F5DFAD] font-lato">
-                    {event.title}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* RIGHT FORM SECTION */}
-      <section className="flex w-full md:w-1/3 items-center justify-center px-6 py-12 bg-[#F5DFAD] overflow-y-auto md:overflow-hidden">
-        <div className="w-full max-w-sm rounded-2xl shadow-2xl border border-[#2D4C51] px-6 py-8 bg-[#173236]">
-          <h1 className="text-3xl font-bold text-[#F5DFAD] mb-3 font-anton">
-            Register
-          </h1>
-          <p className="mb-6 text-[#DDDEDF] retro-glow text-sm">
+          <p className="retro-glow mb-6 text-sm text-[#DDDEDF]">
             Your gateway to spectacular events!
           </p>
 
-          <form className="flex flex-col gap-y-6 font-lato">
+          <form onSubmit={formik.handleSubmit} className="font-lato space-y-6">
             {/* EMAIL */}
-            <div>
-              <label htmlFor="email" className="block mb-1 text-[#DDDEDF]">
+            <div className="relative">
+              <Label htmlFor="email" className="text-[#DDDEDF]">
                 Email
-              </label>
-              <input
-                type="email"
+              </Label>
+              {formik.touched.email && formik.errors.email && (
+                <span className="absolute top-0 right-0 text-sm text-red-500">
+                  {formik.errors.email}
+                </span>
+              )}
+              <Input
                 id="email"
                 name="email"
-                required
-                className="w-full px-3 py-2 rounded-md border border-[#2D4C51] bg-[#F5DFAD] text-[#173236] placeholder:text-[#2D4C51] focus:outline-none focus:ring-2 focus:ring-[#E67F3C]"
-                placeholder="Enter your email"
+                type="email"
+                placeholder="you@example.com"
+                value={formik.values.email}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className="mt-1 bg-[#F5DFAD] text-[#173236] placeholder:text-[#2D4C51]"
               />
             </div>
 
-            {/* FULLNAME */}
-            <div>
-              <label htmlFor="fullname" className="block mb-1 text-[#DDDEDF]">
+            {/* FULL NAME */}
+            <div className="relative">
+              <Label htmlFor="fullName" className="text-[#DDDEDF]">
                 Full Name
-              </label>
-              <input
+              </Label>
+              {formik.touched.fullName && formik.errors.fullName && (
+                <span className="absolute top-0 right-0 text-sm text-red-500">
+                  {formik.errors.fullName}
+                </span>
+              )}
+              <Input
+                id="fullName"
+                name="fullName"
                 type="text"
-                id="fullname"
-                name="fullname"
-                required
-                className="w-full px-3 py-2 rounded-md border border-[#2D4C51] bg-[#F5DFAD] text-[#173236] placeholder:text-[#2D4C51] focus:outline-none focus:ring-2 focus:ring-[#E67F3C]"
-                placeholder="Enter your full name"
-              />
-            </div>
-
-            {/* USERNAME */}
-            <div>
-              <label htmlFor="username" className="block mb-1 text-[#DDDEDF]">
-                Username
-              </label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                required
-                className="w-full px-3 py-2 rounded-md border border-[#2D4C51] bg-[#F5DFAD] text-[#173236] placeholder:text-[#2D4C51] focus:outline-none focus:ring-2 focus:ring-[#E67F3C]"
-                placeholder="Enter your username"
+                placeholder="Jane Doe"
+                value={formik.values.fullName}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className="mt-1 bg-[#F5DFAD] text-[#173236] placeholder:text-[#2D4C51]"
               />
             </div>
 
             {/* PASSWORD */}
-            <div>
-              <label htmlFor="password" className="block mb-1 text-[#DDDEDF]">
+            <div className="relative">
+              <Label htmlFor="password" className="text-[#DDDEDF]">
                 Password
-              </label>
-              <input
-                type="password"
+              </Label>
+              {formik.touched.password && formik.errors.password && (
+                <span className="absolute top-0 right-0 text-sm text-red-500">
+                  {formik.errors.password}
+                </span>
+              )}
+              <Input
                 id="password"
                 name="password"
-                required
-                className="w-full px-3 py-2 rounded-md border border-[#2D4C51] bg-[#F5DFAD] text-[#173236] placeholder:text-[#2D4C51] focus:outline-none focus:ring-2 focus:ring-[#E67F3C]"
-                placeholder="••••••••"
+                type="password"
+                placeholder="Enter your password"
+                value={formik.values.password}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className="mt-1 bg-[#F5DFAD] text-[#173236] placeholder:text-[#2D4C51]"
               />
             </div>
 
+            {/* CONFIRM PASSWORD */}
+            <div className="relative">
+              <Label htmlFor="confirmPassword" className="text-[#DDDEDF]">
+                Confirm Password
+              </Label>
+              {formik.touched.confirmPassword &&
+                formik.errors.confirmPassword && (
+                  <span className="absolute top-0 right-0 text-sm text-red-500">
+                    {formik.errors.confirmPassword}
+                  </span>
+                )}
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                placeholder="Confirm your password"
+                value={formik.values.confirmPassword}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className="mt-1 bg-[#F5DFAD] text-[#173236] placeholder:text-[#2D4C51]"
+              />
+            </div>
+
+            {/* REFERRAL CODE (trigger only if NONE) */}
+            <div className="flex items-center gap-2">
+              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="p-0 text-[#E67F3C] hover:underline"
+                  >
+                    Got Referral Code?
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="rounded-2xl border border-[#2D4C51] bg-[#173236] p-6 text-[#F5DFAD] shadow-2xl">
+                  <DialogHeader>
+                    <DialogTitle className="font-anton text-xl">
+                      Apply Referral Code
+                    </DialogTitle>
+                    <DialogDescription className="text-sm text-[#DDDEDF]">
+                      Unlock a{" "}
+                      <span className="font-semibold text-[#E67F3C]">
+                        5% discount
+                      </span>
+                      .
+                    </DialogDescription>
+                  </DialogHeader>
+
+                  <div className="space-y-3 pt-4">
+                    <Label htmlFor="refCode" className="text-[#DDDEDF]">
+                      Code
+                    </Label>
+                    <div className="flex gap-3">
+                      <Input
+                        id="refCode"
+                        name="refCode"
+                        placeholder="EVENT2025"
+                        value={formik.values.refCode}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        className="w-2/5 bg-[#22406B] text-[#F5DFAD] placeholder:text-[#A9A9A9]"
+                      />
+                      <Button
+                        type="button"
+                        className="w-3/5 bg-[#E67F3C] font-semibold text-[#173236] hover:bg-[#FF944D]"
+                        onClick={applyReferralCode}
+                        disabled={!formik.values.refCode.trim()}
+                      >
+                        Apply Code
+                      </Button>
+                    </div>
+                  </div>
+
+                  <DialogFooter className="pt-4">
+                    <DialogClose asChild>
+                      <Button
+                        variant="ghost"
+                        className="text-sm text-[#DDDEDF] hover:underline"
+                      >
+                        Close
+                      </Button>
+                    </DialogClose>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+
+              {refCodeStatus !== "NONE" && (
+                <>
+                  <b
+                    className={`ml-auto text-sm ${
+                      refCodeStatus === "VALID"
+                        ? "text-green-400"
+                        : "text-red-400"
+                    }`}
+                  >
+                    Code {refCodeStatus}
+                  </b>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      formik.setFieldValue("refCode", "");
+                      setRefCodeStatus("NONE");
+                    }}
+                    className="text-xs text-[#DDDEDF] transition-colors hover:text-white"
+                    aria-label="Remove referral code"
+                  >
+                    ✕
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* Show status once applied */}
+            {/* {refCodeStatus !== "NONE" && (
+              <div className="flex items-center gap-1">
+                <b
+                  className={`text-sm ${
+                    refCodeStatus === "VALID"
+                      ? "text-green-400"
+                      : "text-red-400"
+                  }`}
+                >
+                  Code {refCodeStatus}
+                </b>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    formik.setFieldValue("refCode", ""); // clear input
+                    setRefCodeStatus("NONE"); // reset status
+                  }}
+                  className="text-xs text-[#DDDEDF] transition-colors hover:text-white"
+                  aria-label="Remove referral code"
+                >
+                  ✕
+                </button>
+              </div>
+            )} */}
+
             {/* SUBMIT */}
-            <button
+            <Button
+              disabled={isPending || refCodeStatus === "INVALID"}
               type="submit"
-              className="w-full font-bitcount py-2.5 rounded-md bg-[#E67F3C] hover:bg-[#2E5A61] text-white font-bold tracking-wide transition-all duration-300"
+              className="font-bitcount w-full rounded-md bg-[#E67F3C] py-2.5 text-white hover:bg-[#2E5A61]"
             >
               Register
-            </button>
+            </Button>
+
+            <p className="text-center text-sm text-[#DDDEDF]">
+              Already a Nostrers?{" "}
+              <Link
+                href="/login"
+                className="text-[#F5DFAD] underline hover:text-[#E67F3C]"
+              >
+                Login
+              </Link>
+            </p>
           </form>
         </div>
       </section>
     </main>
-  )
-}
+  );
+};
 
-export default RegisterPage
+export default RegisterUser;

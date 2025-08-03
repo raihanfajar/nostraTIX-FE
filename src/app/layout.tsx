@@ -1,8 +1,10 @@
+import Navbar from "@/components/Navbar";
+import { bitcount } from "@/lib/fonts";
+import ReactQueryProvider from "@/providers/ReactQueryProviders";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { bitcount } from "@/lib/fonts"; 
+import { Bounce, ToastContainer } from "react-toastify";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 const geistSans = Geist({
@@ -32,7 +34,20 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${bitcount.variable}`}
       >
         <Navbar />
-        {children}
+        <ReactQueryProvider>{children}</ReactQueryProvider>
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick={false}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+          transition={Bounce}
+        />
         <Footer/>
       </body>
     </html>

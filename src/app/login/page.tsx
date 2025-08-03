@@ -1,117 +1,113 @@
-import Image from "next/image";
+"use client";
+import AuthMainLeftSection from "@/components/AuthMainLeftSection";
+import { useUserLogin } from "@/hooks/useUserLogin";
+import { loginUserVS } from "@/utils/validationSchema";
+import { useFormik } from "formik";
+import Link from "next/link";
 
-const LoginPage = () => {
+const LoginUserPage = () => {
+  const { mutateAsync: loginUser, isPending } = useUserLogin();
+
+  const formik = useFormik({
+    initialValues: { email: "", password: "" },
+    validationSchema: loginUserVS,
+    onSubmit: async (values) => {
+      await loginUser(values);
+    },
+  });
+
   return (
-    <main className="min-h-screen flex bg-[#173236] text-[#DDDEDF]">
-      {/* SIDE BANNER S */}
-      <section className="hidden md:flex flex-col pt-20 w-[60%] px-16 bg-[#173236] shadow-[10px_0_20px_-5px_rgba(0,0,0,0.6)] z-20 relative">
-        <div className="absolute right-0 top-0 h-full w-1 animate-gradient-y" />
+    <main className="flex min-h-screen bg-[#173236] text-[#DDDEDF]">
+      <AuthMainLeftSection />
 
-        <div className="flex flex-col gap-4">
-          <Image className="ml-24" src="/NostraTixLogoTicket.png" alt="Logo" width={200} height={200} />
-          <h1 className="text-4xl font-bold font-anton text-[#DDDEDF]">
-            Welcome to <span className="text-[#F5DFAD]">Nostra</span><span className="text-[#E67F3C]">Tik</span>
+      <section className="flex w-full items-center justify-center bg-[#F5DFAD] px-8 py-16 lg:w-2/5">
+        <div className="w-full max-w-sm rounded-2xl border border-[#2D4C51] bg-[#173236] px-6 py-10 shadow-2xl sm:px-8">
+          <h1 className="font-anton mb-3 text-3xl font-bold text-[#F5DFAD]">
+            User Login
           </h1>
-          <p className="leading-relaxed text-lg font-lato">
-            Your event ticketing platform made simple and secure.
-            <br />
-            Buy, sell, and scan — all in one place.
+          <p className="retro-glow mb-8 text-sm">
+            Your gateway to spectacular events!
           </p>
-        </div>
 
-        <div className="mt-5">
-          <h1 className="text-3xl font-bold mb-4 font-anton text-[#DDDEDF]">Sneak peek at what we cover</h1>
-          <div className="relative overflow-hidden w-full h-40">
-            <div className="absolute flex gap-6 animate-marquee whitespace-nowrap">
-              {/* MAPPING */}
-              {[
-                { title: "Dummy", image: "/file.svg" },
-                { title: "Dummy", image: "/globe.svg" },
-                { title: "Dummy", image: "/next.svg" },
-                { title: "Dummy", image: "/vercel.svg" },
-                { title: "Dummy", image: "/window.svg" },
-                // Duplicate for infinite loop effect
-                { title: "Dummy", image: "/file.svg" },
-                { title: "Dummy", image: "/globe.svg" },
-                { title: "Dummy", image: "/next.svg" },
-                { title: "Dummy", image: "/vercel.svg" },
-                { title: "Dummy", image: "/window.svg" },
-              ].map((event, index) => (
-                <div
-                  key={index}
-                  className="w-48 flex-shrink-0 rounded-xl overflow-hidden border border-[#2D4C51] shadow-md bg-[#22406]"
-                >
-                  <div className="flex items-center justify-center h-24 bg-[#173236]">
-                    <Image src={event.image} alt={event.title} width={100} height={100} className="h-12 w-auto" />
-                  </div>
-                  <div className="p-2 text-center text-sm text-[#F5DFAD] font-lato">
-                    {event.title}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-      {/* SIDE BANNER E */}
-
-      {/* LOGIN SECTION S */}
-      <section className="flex w-full md:w-[40%] items-center justify-center px-8 py-16 bg-[#F5DFAD] z-10 relative">
-        <div className="w-full max-w-sm rounded-2xl shadow-2xl drop-shadow-xl border border-[#2D4C51] px-6 sm:px-8 md:px-10 py-10 sm:py-12 bg-[#173236] transition-all duration-300">
-
-          <h1 className="text-3xl font-bold text-[#F5DFAD] mb-3 font-anton">
-            Login
-          </h1>
-          <p className="mb-8 text-[#DDDEDF] retro-glow text-sm">Your gateway to spectacular events!</p>
-
-          <form className="flex flex-col gap-y-8 font-lato">
-            {/* USERNAME S */}
+          <form
+            onSubmit={formik.handleSubmit}
+            className="flex flex-col gap-y-6"
+          >
             <div>
-              <label htmlFor="username" className="block mb-2 text-[#DDDEDF]">
-                Username
+              <label htmlFor="email" className="mb-1 block text-sm">
+                Email
               </label>
               <input
-                type="text"
-                id="username"
-                name="username"
-                required
-                className="w-full px-4 py-3 rounded-md border border-[#2D4C51] bg-[#F5DFAD] text-[#173236] placeholder:text-[#2D4C51] focus:outline-none focus:ring-2 focus:ring-[#E67F3C]"
-                placeholder="Enter your username"
+                id="email"
+                name="email"
+                type="email"
+                value={formik.values.email}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                placeholder="Enter your email"
+                className="w-full rounded-md border border-[#2D4C51] bg-[#F5DFAD] px-4 py-2 text-[#173236] placeholder:text-[#2D4C51] focus:ring-2 focus:ring-[#E67F3C]"
               />
+              {formik.touched.email && formik.errors.email && (
+                <p className="mt-1 text-xs text-red-400">
+                  {formik.errors.email}
+                </p>
+              )}
             </div>
-            {/* USERNAME E */}
 
-            {/* PASSWORD S */}
             <div>
-              <label htmlFor="password" className="block mb-2 text-[#DDDEDF]">
+              <label htmlFor="password" className="mb-1 block text-sm">
                 Password
               </label>
               <input
-                type="password"
                 id="password"
                 name="password"
-                required
-                className="w-full px-4 py-3 rounded-md border border-[#2D4C51] bg-[#F5DFAD] text-[#173236] placeholder:text-[#2D4C51] focus:outline-none focus:ring-2 focus:ring-[#E67F3C]"
-                placeholder="••••••••"
+                type="password"
+                value={formik.values.password}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                placeholder="Enter your password"
+                className="w-full rounded-md border border-[#2D4C51] bg-[#F5DFAD] px-4 py-2 text-[#173236] placeholder:text-[#2D4C51] focus:ring-2 focus:ring-[#E67F3C]"
               />
+              {formik.touched.password && formik.errors.password && (
+                <p className="mt-1 text-xs text-red-400">
+                  {formik.errors.password}
+                </p>
+              )}
             </div>
-            {/* PASSWORD E */}
 
-            {/* SUBMIT BUTTON S */}
             <button
+              disabled={isPending}
               type="submit"
-              className="w-full hover:cursor-pointer font-bitcount py-3 rounded-md bg-[#E67F3C] hover:bg-[#2E5A61] text-white font-bold tracking-wide transition-all duration-300"
+              className="w-full rounded-md bg-[#E67F3C] py-2 font-bold tracking-wide text-white transition hover:bg-[#2E5A61] disabled:opacity-60"
             >
-              Login
+              {isPending ? "Logging in..." : "Login"}
             </button>
-            {/* SUBMIT BUTTON E */}
+
+            <div className="space-y-1 text-center text-sm">
+              <p>
+                Not a Nostrers?{" "}
+                <Link
+                  href="/register"
+                  className="text-[#F5DFAD] underline hover:text-[#E67F3C]"
+                >
+                  Register user
+                </Link>
+              </p>
+              <p>
+                Are you an organizer?{" "}
+                <Link
+                  href="/register/organizer"
+                  className="text-[#F5DFAD] underline hover:text-[#E67F3C]"
+                >
+                  Register organizer
+                </Link>
+              </p>
+            </div>
           </form>
         </div>
       </section>
-
-      {/* LOGIN SECTION E */}
     </main>
   );
 };
 
-export default LoginPage;
+export default LoginUserPage;
