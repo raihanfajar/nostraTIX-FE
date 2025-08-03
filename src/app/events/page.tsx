@@ -1,4 +1,5 @@
 import EventList from "@/components/EventList";
+import { PaginationSection } from "@/components/PaginationSection";
 import SearchBar from "@/components/SearchBar/SearchBar";
 import React, { Suspense } from "react";
 
@@ -7,9 +8,8 @@ function eventPage() {
     <section className="container mx-auto px-4">
       <Suspense>
         <SearchBar />
-      </Suspense>
-      <Suspense>
         <EventList />
+        <PaginationSection />
       </Suspense>
     </section>
   );
