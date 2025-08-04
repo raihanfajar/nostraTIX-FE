@@ -5,7 +5,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useOrganizerLogin } from "@/hooks/useOrganizerLogin";
+import { useOrganizerLogin } from "@/hooks/auth/useOrganizerLogin";
 import { loginUserVS } from "@/utils/validationSchema";
 import { useFormik } from "formik";
 

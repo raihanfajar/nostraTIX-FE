@@ -15,7 +15,7 @@ const Navbar = () => {
     pathname !== "/register" &&
     pathname !== "/login/organizer" &&
     pathname !== "/register/organizer" &&
-    !pathname.includes("/dashboard"); // !Learn how to exclude slug, ghazi did it like this, is it the best method?
+    !pathname.includes("/dashboard"); // !Excluding dashboard (ghazi)
 
   // 2. Jika kondisi tidak terpenuhi, render "tidak ada apa-apa"
   if (!showNavbar) {
