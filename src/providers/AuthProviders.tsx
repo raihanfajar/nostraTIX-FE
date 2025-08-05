@@ -67,8 +67,13 @@ export default function AuthProvider({
         } catch (error) {
           console.error("Session is invalid or expired:", error);
           // Clear auth state on error before redirecting
+
+          let routerpoint = "/login"; // Default for user/admin
+          if (role === "ORGANIZER") {
+            routerpoint = "/organizer/login";
+          }
           useAuthStore.getState().clearAuth();
-          router.push("/login");
+          router.push(routerpoint);
         }
       };
 
