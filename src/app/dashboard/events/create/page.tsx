@@ -1,3 +1,5 @@
+"use client";
+
 import { CityCombobox } from "@/components/CityComboBox";
 import { CountryCombobox } from "@/components/CountryComboBox";
 import { getEventCategories } from "@/services/getEvents";
@@ -7,10 +9,15 @@ import { axiosInstance } from "@/utils/axiosInstance";
 import { createEventVS } from "@/utils/validationSchema";
 import { useFormik } from "formik";
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
-const createEvent = () => {
+const CreateEvent = () => {
   const { accessToken } = useAuthStore();
   const [categories, setCategories] = useState<Category[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -43,16 +50,29 @@ const createEvent = () => {
         {
           name: "",
           description: "",
-          price: 0,
-          seatQuota: 0,
+          price: 0, // Change from string to number
+          seatQuota: 1, // Change from string to number, min value 1
         },
       ],
     },
     validationSchema: createEventVS,
+    validateOnMount: true,
+    validateOnBlur: true,
+    validateOnChange: true,
     onSubmit: async (values, { setSubmitting }) => {
       try {
+        console.log("Starting form submission");
         setSubmitting(true);
+
         const fd = new FormData();
+        // Log all values before creating FormData
+        console.log("Form values:", values);
+
+        // Add validation before submission
+        if (!values.banner || !values.picture1) {
+          toast.error("Banner and Picture 1 are required");
+          return;
+        }
 
         fd.append("name", values.name);
         fd.append("description", values.description);
@@ -76,22 +96,27 @@ const createEvent = () => {
 
         fd.append("ticketCategories", JSON.stringify(values.ticketCategories));
 
-        await axiosInstance.post("/events", fd, {
+        // Log the request before sending
+        console.log(
+          "Sending request to:",
+          axiosInstance.defaults.baseURL + "events/create",
+        );
+
+        const response = await axiosInstance.post("/events/create", fd, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "multipart/form-data",
           },
         });
 
-        console.log("FormData content (Corrected):");
-        for (let [key, value] of fd.entries()) {
-          console.log(key, value);
-        }
-
-        setSubmitting(false);
-      } catch (error) {
-        console.error("Error creating event:", error);
+        console.log("Response:", response);
+        toast.success("Event created successfully");
+        router.push("/dashboard/events");
+      } catch (error: any) {
+        console.error("Submission error:", error);
+        toast.error(error.response?.data?.message || "Failed to create event");
       } finally {
-        setSubmitting(false); // Ensure submitting state is reset
+        setSubmitting(false);
       }
     },
   });
@@ -102,8 +127,12 @@ const createEvent = () => {
         Create New Event
       </h1>
       <form
-        onSubmit={formik.handleSubmit}
-        className="mt-8 space-y-6 rounded-lg bg-white p-8 shadow"
+        onSubmit={(e) => {
+          e.preventDefault(); // Add this to prevent default form submission
+          console.log("Form submitted");
+          formik.handleSubmit(e);
+        }}
+        className="my-10 space-y-6 rounded-lg bg-white p-8 shadow"
       >
         {/* Event Basic Info */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -143,7 +172,9 @@ const createEvent = () => {
               ))}
             </select>
             {formik.touched.category && formik.errors.category && (
-              <div className="text-sm text-red-600">{formik.errors.category}</div>
+              <div className="text-sm text-red-600">
+                {formik.errors.category}
+              </div>
             )}
           </div>
         </div>
@@ -162,7 +193,9 @@ const createEvent = () => {
             className="mt-1 block w-full rounded-md border border-gray-300 p-2"
           />
           {formik.touched.description && formik.errors.description && (
-            <div className="text-sm text-red-600">{formik.errors.description}</div>
+            <div className="text-sm text-red-600">
+              {formik.errors.description}
+            </div>
           )}
         </div>
 
@@ -170,7 +203,9 @@ const createEvent = () => {
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Country</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Country
+              </label>
               <CountryCombobox
                 value={formik.values.countryId}
                 onChange={(value) => {
@@ -180,20 +215,28 @@ const createEvent = () => {
                 }}
               />
               {formik.touched.countryId && formik.errors.countryId && (
-                <div className="text-sm text-red-600">{formik.errors.countryId}</div>
+                <div className="text-sm text-red-600">
+                  {formik.errors.countryId}
+                </div>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">City</label>
+              <label className="block text-sm font-medium text-gray-700">
+                City
+              </label>
               <CityCombobox
                 countryId={formik.values.countryId}
                 value={formik.values.cityId}
                 onChange={(value) => formik.setFieldValue("cityId", value)}
-                disabled={!formik.values.countryId || formik.values.countryId === 0}
+                disabled={
+                  !formik.values.countryId || formik.values.countryId === 0
+                }
               />
               {formik.touched.cityId && formik.errors.cityId && (
-                <div className="text-sm text-red-600">{formik.errors.cityId}</div>
+                <div className="text-sm text-red-600">
+                  {formik.errors.cityId}
+                </div>
               )}
             </div>
           </div>
@@ -212,7 +255,56 @@ const createEvent = () => {
               disabled={!formik.values.cityId || formik.values.cityId === 0}
             />
             {formik.touched.location && formik.errors.location && (
-              <div className="text-sm text-red-600">{formik.errors.location}</div>
+              <div className="text-sm text-red-600">
+                {formik.errors.location}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Date Fields */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Start Date
+            </label>
+            <DatePicker
+              selected={formik.values.startDate}
+              onChange={(date) => formik.setFieldValue("startDate", date)}
+              minDate={new Date()}
+              dateFormat="dd/MM/yyyy"
+              className="mt-1 block w-full rounded-md border border-gray-300 p-2"
+              placeholderText="Select start date"
+              onBlur={formik.handleBlur}
+              name="startDate"
+              showPopperArrow={false}
+            />
+            {formik.touched.startDate && formik.errors.startDate && (
+              <div className="text-sm text-red-600">
+                {formik.errors.startDate}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              End Date
+            </label>
+            <DatePicker
+              selected={formik.values.endDate}
+              onChange={(date) => formik.setFieldValue("endDate", date)}
+              minDate={formik.values.startDate || new Date()}
+              dateFormat="dd/MM/yyyy"
+              className="mt-1 block w-full rounded-md border border-gray-300 p-2"
+              placeholderText="Select end date"
+              onBlur={formik.handleBlur}
+              name="endDate"
+              showPopperArrow={false}
+            />
+            {formik.touched.endDate && formik.errors.endDate && (
+              <div className="text-sm text-red-600">
+                {formik.errors.endDate}
+              </div>
             )}
           </div>
         </div>
@@ -229,15 +321,10 @@ const createEvent = () => {
               onChange={(event) => {
                 formik.setFieldValue(
                   "banner",
-                  event.currentTarget.files?.[0] || null
+                  event.currentTarget.files?.[0] || null,
                 );
               }}
-              className="mt-1 block w-full text-sm text-gray-500
-                file:mr-4 file:py-2 file:px-4
-                file:rounded-md file:border-0
-                file:text-sm file:font-semibold
-                file:bg-blue-50 file:text-blue-700
-                hover:file:bg-blue-100"
+              className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-md file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"
             />
           </div>
 
@@ -253,28 +340,176 @@ const createEvent = () => {
                   onChange={(event) => {
                     formik.setFieldValue(
                       `picture${num}`,
-                      event.currentTarget.files?.[0] || null
+                      event.currentTarget.files?.[0] || null,
                     );
                   }}
-                  className="mt-1 block w-full text-sm text-gray-500
-                    file:mr-4 file:py-2 file:px-4
-                    file:rounded-md file:border-0
-                    file:text-sm file:font-semibold
-                    file:bg-blue-50 file:text-blue-700
-                    hover:file:bg-blue-100"
+                  className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-md file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"
                 />
               </div>
             ))}
           </div>
         </div>
 
+        {/* Ticket Categories */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-medium text-gray-700">
+              Ticket Categories
+            </h3>
+            <button
+              type="button"
+              onClick={() =>
+                formik.setFieldValue("ticketCategories", [
+                  ...formik.values.ticketCategories,
+                  { name: "", description: "", price: "", seatQuota: "" },
+                ])
+              }
+              className="rounded-md bg-[#224046] px-4 py-2 text-[#F5DFAD] hover:bg-[#224046]/80"
+            >
+              Add Ticket Category
+            </button>
+          </div>
+
+          {/* Display array-level validation errors (e.g., "at least one category is required") */}
+          {formik.touched.ticketCategories &&
+            typeof formik.errors.ticketCategories === "string" && (
+              <div className="text-sm text-red-600">
+                {formik.errors.ticketCategories}
+              </div>
+            )}
+
+          {formik.values.ticketCategories.map((ticket, index) => {
+            // REFACTOR: Get nested properties safely to make JSX cleaner
+            const categoryErrors =
+              (formik.errors.ticketCategories as any)?.[index] || {};
+            const categoryTouched =
+              (formik.touched.ticketCategories as any)?.[index] || {};
+
+            return (
+              <div
+                key={index}
+                className="rounded-lg border border-[#F5DFAD]/20 bg-white p-4 shadow"
+              >
+                <div className="mb-4 flex justify-between">
+                  <h4 className="text-md font-medium text-gray-700">
+                    Ticket Category #{index + 1}
+                  </h4>
+                  {formik.values.ticketCategories.length > 1 && ( // Allow removing if more than one exists
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newCategories =
+                          formik.values.ticketCategories.filter(
+                            (_, i) => i !== index,
+                          );
+                        formik.setFieldValue("ticketCategories", newCategories);
+                      }}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  {/* Ticket Name */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Ticket Name
+                    </label>
+                    <input
+                      type="text"
+                      name={`ticketCategories.${index}.name`}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      value={ticket.name}
+                      className="mt-1 block w-full rounded-md border border-gray-300 p-2"
+                    />
+                    {categoryTouched.name && categoryErrors.name && (
+                      <div className="text-sm text-red-600">
+                        {categoryErrors.name}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Description */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Description
+                    </label>
+                    <input
+                      type="text"
+                      name={`ticketCategories.${index}.description`}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      value={ticket.description}
+                      className="mt-1 block w-full rounded-md border border-gray-300 p-2"
+                    />
+                    {categoryTouched.description &&
+                      categoryErrors.description && (
+                        <div className="text-sm text-red-600">
+                          {categoryErrors.description}
+                        </div>
+                      )}
+                  </div>
+
+                  {/* Price */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Price
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      name={`ticketCategories.${index}.price`}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      value={ticket.price}
+                      className="mt-1 block w-full rounded-md border border-gray-300 p-2"
+                    />
+                    {categoryTouched.price && categoryErrors.price && (
+                      <div className="text-sm text-red-600">
+                        {categoryErrors.price}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Seat Quota */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Seat Quota
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      name={`ticketCategories.${index}.seatQuota`}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      value={ticket.seatQuota}
+                      className="mt-1 block w-full rounded-md border border-gray-300 p-2"
+                    />
+                    {categoryTouched.seatQuota && categoryErrors.seatQuota && (
+                      <div className="text-sm text-red-600">
+                        {categoryErrors.seatQuota}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
         {/* Submit Button */}
         <div className="flex justify-end pt-5">
+          <pre className="text-xs text-red-500">
+            {JSON.stringify(formik.errors, null, 2)}
+          </pre>
+
           <button
             type="submit"
             disabled={formik.isSubmitting}
-            className="rounded-md bg-blue-600 px-6 py-2 text-white transition-colors 
-              hover:bg-blue-700 disabled:bg-gray-400"
+            className="rounded-md bg-blue-600 px-6 py-2 text-white transition-colors hover:bg-blue-700 disabled:bg-gray-400"
           >
             {formik.isSubmitting ? "Creating..." : "Create Event"}
           </button>
@@ -284,4 +519,4 @@ const createEvent = () => {
   );
 };
 
-export default createEvent;
+export default CreateEvent;

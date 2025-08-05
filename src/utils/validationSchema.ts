@@ -79,9 +79,8 @@ export const createEventVS = Yup.object().shape({
   picture1: fileValidator.required("Picture 1 is required."),
 
   // Optional file fields
-  picture2: fileValidator,
-
-  picture3: fileValidator,
+  picture2: fileValidator.nullable(), // boleh null
+  picture3: fileValidator.nullable(), // boleh null
 
   ticketCategories: Yup.array()
     .of(
@@ -94,7 +93,6 @@ export const createEventVS = Yup.object().shape({
 
         price: Yup.number()
           .typeError("Price must be a number.")
-          .positive("Price must be a positive number.")
           .required("Price is required. (use 0 for free tickets)"),
 
         seatQuota: Yup.number()
