@@ -16,6 +16,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "res.cloudinary.com",
       },
+      {
+        protocol: "https",
+        hostname: "st3.depositphotos.com",
+      },
     ],
   },
 };
