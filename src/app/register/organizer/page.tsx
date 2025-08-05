@@ -1,7 +1,7 @@
 "use client";
 import RegisterOrganizerLeftSection from "@/components/RegisterOrganizerLeftSection";
 import { RegisterOrganizerNoticeDialog } from "@/components/RegisterOrganizerNoticeDialog";
-import { useOrganizerRegister } from "@/hooks/useOrganizerRegister";
+import { useOrganizerRegister } from "@/hooks/auth/useOrganizerRegister";
 import { registerOrganizerVS } from "@/utils/validationSchema";
 import { useFormik } from "formik";
 import Link from "next/link";

@@ -8,7 +8,10 @@ const Footer = () => {
   const pathname = usePathname();
 
   // 1. Kondisi utama untuk menampilkan atau menyembunyikan seluruh navbar
-  const showNavbar = pathname !== "/login" && pathname !== "/register";
+  const showNavbar =
+    pathname !== "/login" &&
+    pathname !== "/register" &&
+    !pathname.includes("/dashboard"); // !Excluding dashboard (ghazi)
 
   // 2. Jika kondisi tidak terpenuhi, render "tidak ada apa-apa"
   if (!showNavbar) {

@@ -36,7 +36,7 @@ export function useOrganizerLogin() {
             const { id, name, role, slug, accessToken } = data.result.details;
             setAuth({ id, name, role, slug, accessToken });
             toast.success(data.result.message);
-            router.replace(`/dashboard/${slug}`);
+            router.replace(`/dashboard/overview`);
         },
         onError: () => {
             const message = 'Login failed';
