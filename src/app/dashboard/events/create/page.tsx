@@ -14,6 +14,36 @@ import { useRouter } from "next/navigation";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
+interface TicketCategory {
+  name: string;
+  description: string;
+  price: number;
+  seatQuota: number;
+}
+
+interface FormikTicketErrors {
+  name?: string;
+  description?: string;
+  price?: string;
+  seatQuota?: string;
+}
+
+interface FormikTicketTouched {
+  name?: boolean;
+  description?: boolean;
+  price?: boolean;
+  seatQuota?: boolean;
+}
+
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+  message: string;
+}
+
 const CreateEvent = () => {
   const { accessToken } = useAuthStore();
   const [categories, setCategories] = useState<Category[]>([]);
@@ -32,7 +62,21 @@ const CreateEvent = () => {
     fetchCategories();
   }, []);
 
-  const formik = useFormik({
+  const formik = useFormik<{
+    name: string;
+    description: string;
+    category: string;
+    countryId: number;
+    cityId: number;
+    location: string;
+    startDate: Date | undefined;
+    endDate: Date | undefined;
+    banner: File | null;
+    picture1: File | null;
+    picture2: File | null;
+    picture3: File | null;
+    ticketCategories: TicketCategory[];
+  }>({
     initialValues: {
       name: "",
       description: "",
@@ -40,8 +84,8 @@ const CreateEvent = () => {
       countryId: 0,
       cityId: 0,
       location: "",
-      startDate: undefined as Date | undefined,
-      endDate: undefined as Date | undefined,
+      startDate: undefined,
+      endDate: undefined,
       banner: null,
       picture1: null,
       picture2: null,
@@ -112,9 +156,10 @@ const CreateEvent = () => {
         console.log("Response:", response);
         toast.success("Event created successfully");
         router.push("/dashboard/events");
-      } catch (error: any) {
-        console.error("Submission error:", error);
-        toast.error(error.response?.data?.message || "Failed to create event");
+      } catch (error: unknown) {
+        const err = error as ApiError;
+        console.error("Submission error:", err);
+        toast.error(err.response?.data?.message || err.message || "Failed to create event");
       } finally {
         setSubmitting(false);
       }
@@ -361,7 +406,7 @@ const CreateEvent = () => {
               onClick={() =>
                 formik.setFieldValue("ticketCategories", [
                   ...formik.values.ticketCategories,
-                  { name: "", description: "", price: "", seatQuota: "" },
+                  { name: "", description: "", price: 0, seatQuota: 1 } as TicketCategory,
                 ])
               }
               className="rounded-md bg-[#224046] px-4 py-2 text-[#F5DFAD] hover:bg-[#224046]/80"
@@ -379,11 +424,9 @@ const CreateEvent = () => {
             )}
 
           {formik.values.ticketCategories.map((ticket, index) => {
-            // REFACTOR: Get nested properties safely to make JSX cleaner
-            const categoryErrors =
-              (formik.errors.ticketCategories as any)?.[index] || {};
-            const categoryTouched =
-              (formik.touched.ticketCategories as any)?.[index] || {};
+            // Type-safe error and touched handling
+            const categoryErrors = (formik.errors.ticketCategories as FormikTicketErrors[])?.[index] || {};
+            const categoryTouched = (formik.touched.ticketCategories as FormikTicketTouched[])?.[index] || {};
 
             return (
               <div
