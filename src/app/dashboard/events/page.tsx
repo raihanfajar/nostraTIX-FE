@@ -1,14 +1,13 @@
 "use client";
 
-import { CreateEventDialog } from "@/components/orgsidebar/create-event-dialog";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { axiosInstance } from "@/utils/axiosInstance";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+  type ColumnDef,
+} from "@tanstack/react-table";
 import {
   Table,
   TableBody,
@@ -17,20 +16,78 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { dummyEvents, type EventRow } from "@/mock/dummyOrganizerEvents";
-import type { ColumnDef } from "@tanstack/react-table";
 import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { CreateEventDialog } from "@/components/orgsidebar/create-event-dialog";
+import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
-import { useState } from "react";
+import { useAuthStore } from "@/store/useAuthStore";
 
-const columns: ColumnDef<EventRow>[] = [
-  { accessorKey: "title", header: "Title" },
-  { accessorKey: "date", header: "Date" },
-  { accessorKey: "location", header: "Location" },
+// 🧠 1. Define the type (copy from backend)
+type EventRowReal = {
+  id: string;
+  name: string;
+  category: string;
+  country: string;
+  city: string;
+  location: string;
+  ticketsSold: number;
+  revenue: number;
+  startDate: string;
+  endDate: string;
+};
+
+type EventsSummaryResponse = {
+  result: {
+    status: string;
+    message: string;
+    data: EventRowReal[];
+  };
+};
+
+const accessToken = useAuthStore.getState().accessToken;
+
+// 📡 2. Fetch data using react-query
+const getEventsSummary = async (): Promise<EventRowReal[]> => {
+  const res = await axiosInstance.get<EventsSummaryResponse>(
+    "organizer/events/events-summary",
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    },
+  );
+  return res.data.result.data;
+};
+
+const useEventsSummary = () =>
+  useQuery({
+    queryKey: ["organizer-events-summary"],
+    queryFn: getEventsSummary,
+  });
+
+// 📊 3. Table column definitions
+const columns: ColumnDef<EventRowReal>[] = [
+  // { accessorKey: "id", header: "ID" },
+  { accessorKey: "name", header: "Title" },
+  { accessorKey: "category", header: "Category" },
+  {
+    accessorKey: "startDate",
+    header: "Start",
+    cell: ({ getValue }) =>
+      new Date(getValue<string>()).toLocaleDateString("id-ID"),
+  },
+  {
+    accessorKey: "endDate",
+    header: "End",
+    cell: ({ getValue }) =>
+      new Date(getValue<string>()).toLocaleDateString("id-ID"),
+  },
+  { accessorKey: "country", header: "Country" },
+  { accessorKey: "city", header: "City" },
+  { accessorKey: "location", header: "Location Detail" },
   {
     accessorKey: "ticketsSold",
     header: "Tickets Sold",
@@ -40,22 +97,6 @@ const columns: ColumnDef<EventRow>[] = [
     accessorKey: "revenue",
     header: "Revenue",
     cell: ({ getValue }) => `Rp ${getValue<number>().toLocaleString()}`,
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ getValue }) => {
-      const status = getValue<EventRow["status"]>();
-      const color =
-        status === "ACTIVE"
-          ? "bg-green-600"
-          : status === "ONGOING"
-            ? "bg-yellow-600"
-            : status === "ENDED"
-              ? "bg-blue-600"
-              : "bg-red-600";
-      return <Badge className={color}>{status}</Badge>;
-    },
   },
   {
     id: "actions",
@@ -69,7 +110,6 @@ const columns: ColumnDef<EventRow>[] = [
         <DropdownMenuContent>
           <DropdownMenuItem>Edit</DropdownMenuItem>
           <DropdownMenuItem>View Attendees</DropdownMenuItem>
-          <DropdownMenuItem>Duplicate</DropdownMenuItem>
           <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -77,8 +117,9 @@ const columns: ColumnDef<EventRow>[] = [
   },
 ];
 
+// 🚀 4. Page Component
 export default function EventsPage() {
-  const [data] = useState(() => dummyEvents);
+  const { data = [], isLoading } = useEventsSummary();
 
   const table = useReactTable({
     data,
@@ -86,8 +127,12 @@ export default function EventsPage() {
     getCoreRowModel: getCoreRowModel(),
   });
 
+  if (isLoading) {
+    return <div className="p-6 text-white">Loading events...</div>;
+  }
+
   return (
-    <div className="p-6 text-white">
+    <div className="p-6 text-white zoom-out-85">
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-bold">My Events</h1>
         <CreateEventDialog />

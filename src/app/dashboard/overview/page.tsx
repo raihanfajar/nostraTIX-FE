@@ -47,7 +47,7 @@ export default function OverviewPage() {
 
   const fetchRevenueOverview = async (view: "daily" | "monthly" | "yearly") => {
     const res = await axiosInstance.get<RevenueOverviewResponse>(
-      `organizer/profile/revenue-overview?view=${view}`,
+      `organizer/overview/revenue-overview?view=${view}`,
       {
         headers: { Authorization: `Bearer ${accessToken}` },
       },
@@ -64,7 +64,7 @@ export default function OverviewPage() {
 
   const fetchOverview = async () => {
     const res = await axiosInstance.get<OrganizerOverviewResponse>(
-      "organizer/profile/overview",
+      "organizer/overview",
       {
         headers: { Authorization: `Bearer ${accessToken}` },
       },

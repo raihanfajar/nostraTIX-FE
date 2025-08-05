@@ -1,39 +1,59 @@
-export type EventRow = {
+export type EventRowReal = {
     id: string;
-    title: string;
-    date: string;
+    name: string;
+    category: string;
+    country: string;
+    city: string;
     location: string;
     ticketsSold: number;
     revenue: number;
-    status: "ACTIVE" | "ENDED" | "CANCELLED" | "ONGOING";
+    startDate: string;
+    endDate: string;
 };
 
-export const dummyEvents: EventRow[] = [
+export type EventOverviewResponse = {
+    result: {
+        status: string;
+        message: string;
+        data: EventRowReal[];
+    };
+};
+
+export const dummyEvents: EventRowReal[] = [
     {
         id: "evt-1",
-        title: "Festival Babi",
-        date: "2025-08-15",
-        location: "Jakarta",
+        name: "Festival Babi",
+        category: "MUSIC",
+        startDate: "2025-08-15",
+        endDate: "2025-08-16",
+        country: "Indonesia",
+        city: "Jakarta",
+        location: "BALAI JAKARTA",
         ticketsSold: 87,
-        revenue: 1_740_000,
-        status: "ACTIVE",
+        revenue: 1740000,
     },
     {
         id: "evt-2",
-        title: "Parade Hukum Mati Koruptor",
-        date: "2025-09-10",
-        location: "Jakarta",
-        ticketsSold: 300_000_000,
-        revenue: 3_600_000,
-        status: "ENDED",
+        name: "Parade Hukum Mati Koruptor",
+        startDate: "2025-09-10",
+        endDate: "2025-09-11",
+        country: "Indonesia",
+        city: "South Tangerang",
+        location: "ICE BSD",
+        ticketsSold: 300000000,
+        revenue: 3600000,
+        category: "MUSIC",
     },
     {
         id: "evt-3",
-        title: "Festival Babi (Comeback Edition)",
-        date: "2025-07-30",
-        location: "Surabaya",
+        name: "Festival Babi (Comeback Edition)",
+        startDate: "2025-07-30",
+        endDate: "2025-07-31",
+        country: "Indonesia",
+        city: "Surabaya",
+        location: "BALAI SURABAYA",
         ticketsSold: 200,
-        revenue: 2_000_000,
-        status: "ENDED",
+        revenue: 2000000,
+        category: "MUSIC",
     },
 ];
