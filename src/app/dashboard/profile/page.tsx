@@ -46,7 +46,7 @@ export default function ProfilePage() {
   /* save profile */
   const handleSave = async () => {
     try {
-      await axiosInstance.patch("/organizer/profile", form, {
+      await axiosInstance.patch("organizer/profile/update", form, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       queryClient.invalidateQueries({ queryKey: ["organizerProfile"] });
@@ -65,7 +65,7 @@ export default function ProfilePage() {
     }
     try {
       await axiosInstance.patch(
-        "/organizer/change-password",
+        "organizer/change-password",
         { currentPassword: currentPw, newPassword: newPw },
         { headers: { Authorization: `Bearer ${accessToken}` } },
       );

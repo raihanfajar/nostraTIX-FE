@@ -23,7 +23,7 @@ export function useOrganizerProfile() {
     return useQuery<OrganizerProfile, Error>({
         queryKey: ["organizerProfile"], // !unique key for the query to be cached and re-used when needed in the future
         queryFn: async () => {
-            const { data }: OrganizerProfileResponse = await axiosInstance.get("/organizer/profile", {
+            const { data }: OrganizerProfileResponse = await axiosInstance.get("organizer/profile", {
                 headers: { Authorization: `Bearer ${accessToken}` },
             });
             return data.result.details;
