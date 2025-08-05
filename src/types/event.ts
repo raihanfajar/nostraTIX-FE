@@ -34,3 +34,43 @@ export interface EventPicture {
 export interface Category {
   category: string;
 }
+
+
+export interface EventWithDetails {
+  id: string;
+  organizerId: string;
+  name: string;
+  slug: string;
+  description: string;
+  category: string;
+  countryId: number;
+  cityId: number;
+  location: string;
+  startDate: Date;
+  endDate: Date;
+  totalRating: number;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt?: Date | null;
+  
+  // Related entities from service include
+  pictures: EventPicture[];
+  ticketCategories: TicketCategory[];
+  organizer: {
+    name: string;
+    profilePicture: string;
+    slug: string;
+  };
+}
+
+export interface TicketCategory {
+  id: number;
+  eventId: string;
+  name: string;
+  description: string;
+  price: number;
+  seatQuota: number;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt?: Date | null;
+}

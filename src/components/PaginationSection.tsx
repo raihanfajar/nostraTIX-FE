@@ -22,16 +22,16 @@ export function PaginationSection() {
   });
 
   useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString());
+  const params = new URLSearchParams(searchParams.toString());
 
-    if (page !== 1) {
-      params.set("page", page.toString());
-    } else {
-      params.delete("page");
-    }
+  if (page !== 1) {
+    params.set("page", page.toString());
+  } else {
+    params.delete("page");
+  }
 
-    router.push(`${pathname}?${params.toString()}`);
-  }, [page]);
+  router.push(`${pathname}?${params.toString()}`);
+}, [page, pathname, router, searchParams]);
 
   const totalPages = 5;
 

@@ -159,7 +159,11 @@ const CreateEvent = () => {
       } catch (error: unknown) {
         const err = error as ApiError;
         console.error("Submission error:", err);
-        toast.error(err.response?.data?.message || err.message || "Failed to create event");
+        toast.error(
+          err.response?.data?.message ||
+            err.message ||
+            "Failed to create event",
+        );
       } finally {
         setSubmitting(false);
       }
@@ -406,7 +410,12 @@ const CreateEvent = () => {
               onClick={() =>
                 formik.setFieldValue("ticketCategories", [
                   ...formik.values.ticketCategories,
-                  { name: "", description: "", price: 0, seatQuota: 1 } as TicketCategory,
+                  {
+                    name: "",
+                    description: "",
+                    price: 0,
+                    seatQuota: 1,
+                  } as TicketCategory,
                 ])
               }
               className="rounded-md bg-[#224046] px-4 py-2 text-[#F5DFAD] hover:bg-[#224046]/80"
@@ -425,8 +434,14 @@ const CreateEvent = () => {
 
           {formik.values.ticketCategories.map((ticket, index) => {
             // Type-safe error and touched handling
-            const categoryErrors = (formik.errors.ticketCategories as FormikTicketErrors[])?.[index] || {};
-            const categoryTouched = (formik.touched.ticketCategories as FormikTicketTouched[])?.[index] || {};
+            const categoryErrors =
+              (formik.errors.ticketCategories as FormikTicketErrors[])?.[
+                index
+              ] || {};
+            const categoryTouched =
+              (formik.touched.ticketCategories as FormikTicketTouched[])?.[
+                index
+              ] || {};
 
             return (
               <div
@@ -545,10 +560,9 @@ const CreateEvent = () => {
 
         {/* Submit Button */}
         <div className="flex justify-end pt-5">
-          <pre className="text-xs text-red-500">
+          {/* <pre className="text-xs text-red-500">
             {JSON.stringify(formik.errors, null, 2)}
-          </pre>
-
+          </pre> */} {/* Uncomment for debugging */}
           <button
             type="submit"
             disabled={formik.isSubmitting}
