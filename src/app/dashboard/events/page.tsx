@@ -1,13 +1,12 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { axiosInstance } from "@/utils/axiosInstance";
+import { Button } from "@/components/ui/button";
 import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-  type ColumnDef,
-} from "@tanstack/react-table";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -16,16 +15,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { CreateEventDialog } from "@/components/orgsidebar/create-event-dialog";
-import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
+import { axiosInstance } from "@/utils/axiosInstance";
+import { useQuery } from "@tanstack/react-query";
+import {
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+  type ColumnDef,
+} from "@tanstack/react-table";
+import { MoreHorizontal } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 // 🧠 1. Define the type (copy from backend)
 type EventRowReal = {
@@ -119,7 +119,8 @@ const columns: ColumnDef<EventRowReal>[] = [
 
 // 🚀 4. Page Component
 export default function EventsPage() {
-  const { data = [], isLoading } = useEventsSummary();
+  const router = useRouter();
+  const { data = [], isPending } = useEventsSummary();
 
   const table = useReactTable({
     data,
@@ -127,15 +128,23 @@ export default function EventsPage() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  if (isLoading) {
+  if (isPending) {
     return <div className="p-6 text-white">Loading events...</div>;
   }
 
   return (
-    <div className="p-6 text-white zoom-out-85">
+    <div className="zoom-out-85 p-6 text-white">
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-bold">My Events</h1>
-        <CreateEventDialog />
+        {/* <CreateEventDialog /> */}
+        <Button
+          className="font-bitcount rounded-md bg-[#E67F3C] py-2 font-bold tracking-wide text-white transition hover:bg-[#2E5A61]"
+          variant="default"
+          type="button"
+          onClick={() => router.push("/dashboard/events/create")}
+        >
+          Create Event
+        </Button>
       </div>
 
       <div className="rounded-md border border-[#2D4C51] bg-[#173236]">

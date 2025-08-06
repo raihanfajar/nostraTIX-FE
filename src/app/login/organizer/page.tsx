@@ -78,9 +78,9 @@ const LoginOrganizerPage = () => {
             <button
               disabled={isPending}
               type="submit"
-              className="font-bitcount w-full rounded-md bg-[#E67F3C] py-3 font-bold tracking-wide text-white transition-all duration-300 hover:cursor-pointer hover:bg-[#2E5A61]"
+              className="font-bitcount w-full rounded-md bg-[#E67F3C] py-3 font-bold tracking-wide text-white transition-all duration-300 hover:cursor-pointer hover:bg-[#2E5A61] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Login
+              {isPending ? "Logging in..." : "Login"}
             </button>
             {/* SUBMIT BUTTON E */}
 

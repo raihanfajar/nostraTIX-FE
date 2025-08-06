@@ -78,7 +78,7 @@ const LoginUserPage = () => {
             <button
               disabled={isPending}
               type="submit"
-              className="w-full rounded-md bg-[#E67F3C] py-2 font-bold tracking-wide text-white transition hover:bg-[#2E5A61] disabled:opacity-60"
+              className="font-bitcount w-full rounded-md bg-[#E67F3C] py-2 font-bold tracking-wide text-white transition hover:bg-[#2E5A61] disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isPending ? "Logging in..." : "Login"}
             </button>
