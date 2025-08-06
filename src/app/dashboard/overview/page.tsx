@@ -140,11 +140,7 @@ export default function OverviewPage() {
               setSelectedView(val as "daily" | "monthly" | "yearly")
             }
           >
-<<<<<<< HEAD
-            <TabsList className="font-bitcount border-[#E67F3C] bg-blue-100 text-[#E67F3C]">
-=======
             <TabsList className="bg-[#22406]">
->>>>>>> main
               <TabsTrigger value="daily">Daily</TabsTrigger>
               <TabsTrigger value="monthly">Monthly</TabsTrigger>
               <TabsTrigger value="yearly">Yearly</TabsTrigger>
