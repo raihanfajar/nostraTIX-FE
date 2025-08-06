@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -23,7 +25,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { BackendTransaction } from "@/types/BackendTransaction";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   flexRender,
@@ -32,7 +33,10 @@ import {
 } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { axiosInstance } from "@/utils/axiosInstance";
+import { useAuthStore } from "@/store/useAuthStore";
+
+// === Types ===
 
 type TxRow = {
   id: string;
@@ -44,6 +48,23 @@ type TxRow = {
   usedPoints?: number;
   usedCoupon?: string;
   usedVoucher?: string;
+};
+
+// This describes the nested response object
+type PendingResponse = {
+  status: string;
+  message: string;
+  result: Array<{
+    id: string;
+    customer: string;
+    event: string;
+    amount: number;
+    seats: number;
+    proofUrl: string;
+    usedPoints?: number;
+    usedCoupon?: string;
+    usedVoucher?: string;
+  }>;
 };
 
 const columns: ColumnDef<TxRow>[] = [
@@ -107,6 +128,7 @@ function TxActions(tx: TxRow) {
         </DropdownMenuContent>
       </DropdownMenu>
 
+      {/* Proof Modal */}
       <Dialog open={viewProof} onOpenChange={setViewProof}>
         <DialogContent className="max-w-md border-[#2D4C51] bg-[#173236] text-white">
           <DialogHeader>
@@ -125,6 +147,7 @@ function TxActions(tx: TxRow) {
         </DialogContent>
       </Dialog>
 
+      {/* Confirm Accept/Reject */}
       <Dialog open={!!confirm} onOpenChange={() => setConfirm(null)}>
         <DialogContent className="border-[#2D4C51] bg-[#173236] text-white">
           <DialogHeader>
@@ -147,45 +170,50 @@ function TxActions(tx: TxRow) {
   );
 }
 
+// === Main Page ===
+
 export default function TransactionsPage() {
   const [data, setData] = useState<TxRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const token = useAuthStore.getState().accessToken;
 
   useEffect(() => {
-    async function fetchPendingTransactions() {
+    const fetchTransactions = async () => {
       try {
-        const res = await fetch("/api/organizer/transactions/pending", {
+        const res = await axiosInstance.get<{
+          result: PendingResponse;
+        }>("organizer/transactions/pending", {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
           },
         });
 
-        const json = await res.json();
+        // double result.result per your backend
+        const list = res.data.result.result;
+        const safeList = Array.isArray(list) ? list : [];
 
-        const mapped: TxRow[] = (json.result as BackendTransaction[]).map(
-          (tx) => ({
-            id: tx.id,
-            customer: tx.user?.name ?? "Unknown",
-            event: tx.event?.name ?? "Unknown Event",
-            amount: tx.totalPrice,
-            seats: tx.totalTickets,
-            proofUrl: tx.paymentProofUrl,
-            usedPoints: tx.usedPoints ?? undefined,
-            usedCoupon: tx.coupon?.code ?? undefined,
-            usedVoucher: tx.voucher?.code ?? undefined,
-          }),
-        );
+        const mapped: TxRow[] = safeList.map((tx) => ({
+          id: tx.id,
+          customer: tx.customer,
+          event: tx.event,
+          amount: tx.amount,
+          seats: tx.seats,
+          proofUrl: tx.proofUrl,
+          usedPoints: tx.usedPoints,
+          usedCoupon: tx.usedCoupon,
+          usedVoucher: tx.usedVoucher,
+        }));
 
         setData(mapped);
       } catch (err) {
-        console.error("Failed to fetch transactions", err);
+        console.error("Failed to fetch pending transactions", err);
       } finally {
         setLoading(false);
       }
-    }
+    };
 
-    fetchPendingTransactions();
-  }, []);
+    fetchTransactions();
+  }, [token]);
 
   const table = useReactTable({
     data,
@@ -197,37 +225,29 @@ export default function TransactionsPage() {
     <div className="p-6 text-white">
       <h1 className="mb-4 text-2xl font-bold">Pending Transactions</h1>
 
-      <div className="rounded-md border border-[#2D4C51] bg-[#173236]">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((hg) => (
-              <TableRow key={hg.id}>
-                {hg.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="text-center">
-                  Loading...
-                </TableCell>
-              </TableRow>
-            ) : data.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="text-center">
-                  No pending transactions.
-                </TableCell>
-              </TableRow>
-            ) : (
-              table.getRowModel().rows.map((row) => (
+      {loading ? (
+        <p className="text-center">Loading...</p>
+      ) : data.length === 0 ? (
+        <p className="text-center">No pending transactions.</p>
+      ) : (
+        <div className="rounded-md border border-[#2D4C51] bg-[#173236]">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((hg) => (
+                <TableRow key={hg.id}>
+                  {hg.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -238,11 +258,11 @@ export default function TransactionsPage() {
                     </TableCell>
                   ))}
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </div>
   );
 }
