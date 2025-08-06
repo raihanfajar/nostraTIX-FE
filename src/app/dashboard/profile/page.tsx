@@ -41,12 +41,13 @@ export default function ProfilePage() {
   /* sync fetched data */
   useEffect(() => {
     if (profile) setForm(profile);
+    console.log(profile);
   }, [profile]);
 
   /* save profile */
   const handleSave = async () => {
     try {
-      await axiosInstance.patch("/organizer/profile", form, {
+      await axiosInstance.patch("organizer/profile/update", form, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       queryClient.invalidateQueries({ queryKey: ["organizerProfile"] });
@@ -63,10 +64,14 @@ export default function ProfilePage() {
       toast.error("Both fields required");
       return;
     }
+    if (currentPw === newPw) {
+      toast.error("New password must be different from current password");
+      return;
+    }
     try {
       await axiosInstance.patch(
-        "/organizer/change-password",
-        { currentPassword: currentPw, newPassword: newPw },
+        "organizer/profile/change-password",
+        { password: newPw, currentPassword: currentPw },
         { headers: { Authorization: `Bearer ${accessToken}` } },
       );
       toast.success("Password updated");
