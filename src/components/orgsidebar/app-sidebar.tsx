@@ -1,9 +1,10 @@
+"use client";
+
 import {
   Calendar,
   ChevronUp,
   Home,
   Inbox,
-  Search,
   Settings,
   User2,
 } from "lucide-react";
@@ -19,6 +20,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useAuthStore } from "@/store/useAuthStore";
 import Link from "next/link";
 import {
   DropdownMenu,
@@ -45,11 +47,6 @@ const orgNav = [
     icon: Inbox,
   },
   {
-    title: "Analytics",
-    url: "./analytics",
-    icon: Search,
-  },
-  {
     title: "Profile",
     url: "./profile",
     icon: Settings,
@@ -57,16 +54,23 @@ const orgNav = [
 ];
 
 export function AppSidebar() {
+  const { name } = useAuthStore();
+  const { clearAuth } = useAuthStore();
   return (
     <Sidebar>
-      <SidebarContent>
+      <SidebarContent className="border-r border-[#1F3A3E] bg-[#102A2E] text-gray-200">
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-white">
+            Nostraboard
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {orgNav.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton
+                    className="transition-colors duration-200 hover:bg-[#1C3B40] hover:text-white"
+                    asChild
+                  >
                     <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
@@ -84,21 +88,17 @@ export function AppSidebar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton>
-                  <User2 /> Username
+                  <User2 /> {name}
                   <ChevronUp className="ml-auto" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent
-                side="top"
-                className="w-[--radix-popper-anchor-width]"
-              >
-                <DropdownMenuItem>
-                  <span>Account</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <span>Billing</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
+              <DropdownMenuContent side="top" className="bg-[#102A2E] text-white">
+                <DropdownMenuItem
+                  onClick={() => {
+                    clearAuth();
+                    window.location.href = "/login/organizer";
+                  }}
+                >
                   <span>Sign out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>

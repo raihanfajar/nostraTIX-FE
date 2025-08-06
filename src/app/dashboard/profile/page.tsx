@@ -87,7 +87,7 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6 p-6">
-      <h1 className="text-2xl font-bold">Profile</h1>
+      <h1 className="text-2xl font-bold text-white">Profile</h1>
 
       {/* Avatar row */}
       <div className="flex items-center gap-4">
@@ -100,7 +100,7 @@ export default function ProfilePage() {
         <Button
           variant="outline"
           size="sm"
-          className="border-[#E67F3C] text-[#E67F3C]"
+          className="font-bitcount border-[#E67F3C] bg-black text-[#E67F3C] hover:bg-black hover:text-white"
         >
           <Camera className="mr-2 h-4 w-4" />
           Change Photo
@@ -110,7 +110,7 @@ export default function ProfilePage() {
       {/* Account Info Card */}
       <Card className="border-[#2D4C51] bg-[#173236]">
         <CardHeader className="flex items-center justify-between">
-          <CardTitle>Account Info</CardTitle>
+          <CardTitle className="text-[#E67F3C]">Account Info</CardTitle>
           {!edit && (
             <Button
               variant="ghost"
@@ -126,35 +126,37 @@ export default function ProfilePage() {
         <CardContent className="space-y-4">
           {/* Name */}
           <div>
-            <Label className="text-sm font-medium text-[#DDDEDF]">Name</Label>
+            <Label className="text-md font-medium text-blue-400">Name</Label>
             {edit ? (
               <Input
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="h-fit bg-[#F5DFAD] text-[#173236]"
+                className="mt-1 h-fit bg-[#F5DFAD] text-[#173236]"
               />
             ) : (
-              <p className="mt-1 font-medium">{profile?.name}</p>
+              <p className="mt-1 font-medium text-[#DDDEDF]">{profile?.name}</p>
             )}
           </div>
 
           {/* Email */}
           <div>
-            <Label className="text-sm font-medium text-[#DDDEDF]">Email</Label>
+            <Label className="text-md font-medium text-blue-400">Email</Label>
             {edit ? (
               <Input
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="h-fit bg-[#F5DFAD] text-[#173236]"
+                className="mt-1 h-fit bg-[#F5DFAD] text-[#173236]"
               />
             ) : (
-              <p className="mt-1 font-medium">{profile?.email}</p>
+              <p className="mt-1 font-medium text-[#DDDEDF]">
+                {profile?.email}
+              </p>
             )}
           </div>
 
           {/* Description */}
           <div>
-            <Label className="text-sm font-medium text-[#DDDEDF]">
+            <Label className="text-md font-medium text-blue-400">
               Description
             </Label>
             {edit ? (
@@ -163,23 +165,22 @@ export default function ProfilePage() {
                 onChange={(e) =>
                   setForm({ ...form, description: e.target.value })
                 }
-                className="min-h-fit bg-[#F5DFAD] text-[#173236]"
+                className="mt-1 min-h-fit bg-[#F5DFAD] text-[#173236]"
               />
             ) : (
-              <p className="mt-1 font-medium">{profile?.description}</p>
+              <p className="mt-1 font-medium text-[#DDDEDF]">
+                {profile?.description}
+              </p>
             )}
           </div>
 
           {/* Password */}
           <div>
-            <Label className="text-sm font-medium text-[#DDDEDF]">
-              Password
-            </Label>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setPwDialog(true)}
-              className="mt-1 border-[#E67F3C] text-[#E67F3C]"
+              className="font-bitcount mt-10 border-[#E67F3C] bg-black text-[#E67F3C] hover:bg-black hover:text-white"
             >
               Change Password
             </Button>
