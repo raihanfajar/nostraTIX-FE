@@ -22,8 +22,8 @@ function EventDetails({ event }: EventDetailsProps) {
         <EventTabs event={event} />
       </div>
       <div className="h-[470px] w-full items-center justify-center rounded-2xl border-2 border-[#2D4C51] bg-[#224046] p-5 md:w-1/4">
-        <Link href={`/organizer/${event.slug}`}>
-          <div className="mb-5 flex w-64 items-center gap-3 rounded-full border-1 border-[#F5DFAD] bg-[#173236] p-3">
+        <Link href={`/organizer/${event.organizer.slug}`}>
+          <div className="mb-5 flex w-auto items-center gap-3 rounded-full border-1 border-[#F5DFAD] bg-[#173236] p-1">
             <Image
               src={`${event.organizer.profilePicture}`}
               alt={`${event.organizer.name}`}

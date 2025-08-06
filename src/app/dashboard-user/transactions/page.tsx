@@ -1,199 +1,247 @@
-// "use client";
+"use client";
 
-// import { Button } from "@/components/ui/button";
-// import {
-//   Dialog,
-//   DialogContent,
-//   DialogDescription,
-//   DialogFooter,
-//   DialogHeader,
-//   DialogTitle,
-// } from "@/components/ui/dialog";
-// import {
-//   DropdownMenu,
-//   DropdownMenuContent,
-//   DropdownMenuItem,
-//   DropdownMenuTrigger,
-// } from "@/components/ui/dropdown-menu";
-// import {
-//   Table,
-//   TableBody,
-//   TableCell,
-//   TableHead,
-//   TableHeader,
-//   TableRow,
-// } from "@/components/ui/table";
-// import { dummyPendingTx, type TxRow } from "@/mock/dummyTransactions";
-// import type { ColumnDef } from "@tanstack/react-table";
-// import {
-//   flexRender,
-//   getCoreRowModel,
-//   useReactTable,
-// } from "@tanstack/react-table";
-// import { MoreHorizontal } from "lucide-react";
-// import Image from "next/image";
-// import { useState } from "react";
+import { useEffect, useState } from "react";
+import { axiosInstance } from "@/utils/axiosInstance";
+import { useAuthStore } from "@/store/useAuthStore";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { toast, ToastContainer } from "react-toastify";
 
-// const columns: ColumnDef<TxRow>[] = [
-//   { accessorKey: "id", header: "Order ID" },
-//   { accessorKey: "customer", header: "Customer" },
-//   { accessorKey: "event", header: "Event" },
-//   {
-//     accessorKey: "amount",
-//     header: "Amount",
-//     cell: ({ getValue }) => `Rp ${getValue<number>().toLocaleString()}`,
-//   },
-//   { accessorKey: "seats", header: "Seats" },
-//   {
-//     accessorKey: "usedPoints",
-//     header: "Points",
-//     cell: ({ getValue }) => (getValue<number>() ? getValue<number>() : "—"),
-//   },
-//   {
-//     accessorKey: "usedCoupon",
-//     header: "Coupon",
-//     cell: ({ getValue }) => getValue<string>() || "—",
-//   },
-//   {
-//     id: "actions",
-//     cell: ({ row }) => <TxActions {...row.original} />,
-//   },
-// ];
+interface Transaction {
+  id: string;
+  quantity: number;
+  totalPrice: number;
+  status: string;
+  createdAt: string;
+  event: {
+    id: string;
+    name: string;
+  };
+}
 
-// // Re-usable action column
-// function TxActions(tx: TxRow) {
-//   const [viewProof, setViewProof] = useState(false);
-//   const [confirm, setConfirm] = useState<null | {
-//     action: "accept" | "reject";
-//   }>(null);
+export default function TransactionsDashboard() {
+  const { accessToken, id } = useAuthStore();
+  const [allTransactions, setAllTransactions] = useState<Transaction[]>([]);
+  const [waitingTransactions, setWaitingTransactions] = useState<Transaction[]>(
+    [],
+  );
+  const [loading, setLoading] = useState(true);
 
-//   const handleConfirm = () => {
-//     console.log(`${confirm?.action} transaction ${tx.id}`);
-//     setConfirm(null);
-//   };
+  // State untuk dialog upload
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [selectedTransactionId, setSelectedTransactionId] = useState<
+    string | null
+  >(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
-//   return (
-//     <>
-//       <DropdownMenu>
-//         <DropdownMenuTrigger asChild>
-//           <Button variant="ghost" size="icon">
-//             <MoreHorizontal className="h-4 w-4" />
-//           </Button>
-//         </DropdownMenuTrigger>
-//         <DropdownMenuContent>
-//           <DropdownMenuItem onSelect={() => setViewProof(true)}>
-//             View Proof
-//           </DropdownMenuItem>
-//           <DropdownMenuItem onSelect={() => setConfirm({ action: "accept" })}>
-//             Accept
-//           </DropdownMenuItem>
-//           <DropdownMenuItem
-//             onSelect={() => setConfirm({ action: "reject" })}
-//             className="text-red-600"
-//           >
-//             Reject
-//           </DropdownMenuItem>
-//         </DropdownMenuContent>
-//       </DropdownMenu>
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [allRes, waitingRes] = await Promise.all([
+          axiosInstance.get<Transaction[]>(`/events/user/${id}`, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          }),
+          axiosInstance.get<Transaction[]>(`/events/user/waiting/${id}`, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          }),
+        ]);
+        setAllTransactions(allRes.data);
+        setWaitingTransactions(waitingRes.data);
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to fetch transactions");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-//       {/* Proof modal */}
-//       <Dialog open={viewProof} onOpenChange={setViewProof}>
-//         <DialogContent className="max-w-md border-[#2D4C51] bg-[#173236] text-white">
-//           <DialogHeader>
-//             <DialogTitle>Transfer Proof – {tx.id}</DialogTitle>
-//           </DialogHeader>
-//           <Image
-//             src={tx.proofUrl}
-//             alt="proof"
-//             width={600}
-//             height={400}
-//             className="rounded-md"
-//           />
-//           <DialogFooter>
-//             <Button onClick={() => setViewProof(false)}>Close</Button>
-//           </DialogFooter>
-//         </DialogContent>
-//       </Dialog>
+    fetchData();
+  }, [id, accessToken]);
 
-//       {/* Accept / Reject confirm */}
-//       <Dialog open={!!confirm} onOpenChange={() => setConfirm(null)}>
-//         <DialogContent className="border-[#2D4C51] bg-[#173236] text-white">
-//           <DialogHeader>
-//             <DialogTitle>Confirm {confirm?.action?.toUpperCase()}</DialogTitle>
-//             <DialogDescription>
-//               Transaction {tx.id} will be marked as {confirm?.action}.
-//             </DialogDescription>
-//           </DialogHeader>
-//           <DialogFooter>
-//             <Button variant="ghost" onClick={() => setConfirm(null)}>
-//               Cancel
-//             </Button>
-//             <Button onClick={handleConfirm} className="bg-[#E67F3C]">
-//               Confirm
-//             </Button>
-//           </DialogFooter>
-//         </DialogContent>
-//       </Dialog>
-//     </>
-//   );
-// }
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+    }
+  };
 
-// export default function TransactionsPage() {
-//   const [data] = useState(() => dummyPendingTx); // later → useQuery(...)
+  const handleUpload = async () => {
+    if (!file || !selectedTransactionId) {
+      toast.error("Please select a file first");
+      return;
+    }
+    setIsUploading(true);
 
-//   const table = useReactTable({
-//     data,
-//     columns,
-//     getCoreRowModel: getCoreRowModel(),
-//   });
+    try {
+      const formData = new FormData();
+      formData.append("paymentProof", file);
 
-//   return (
-//     <div className="p-6 text-white">
-//       <h1 className="mb-4 text-2xl font-bold">Pending Transactions</h1>
+      await axiosInstance.post(
+        `/transaction/payment/${selectedTransactionId}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
 
-//       <div className="rounded-md border border-[#2D4C51] bg-[#173236]">
-//         <Table>
-//           <TableHeader>
-//             {table.getHeaderGroups().map((hg) => (
-//               <TableRow key={hg.id}>
-//                 {hg.headers.map((header) => (
-//                   <TableHead key={header.id}>
-//                     {flexRender(
-//                       header.column.columnDef.header,
-//                       header.getContext(),
-//                     )}
-//                   </TableHead>
-//                 ))}
-//               </TableRow>
-//             ))}
-//           </TableHeader>
-//           <TableBody>
-//             {table.getRowModel().rows.map((row) => (
-//               <TableRow key={row.id}>
-//                 {row.getVisibleCells().map((cell) => {
-//                   console.log(cell);
-//                   return (
-//                     <TableCell key={cell.id}>
-//                       {flexRender(
-//                         cell.column.columnDef.cell,
-//                         cell.getContext(),
-//                       )}
-//                     </TableCell>
-//                   );
-//                 })}
-//               </TableRow>
-//             ))}
-//           </TableBody>
-//         </Table>
-//       </div>
-//     </div>
-//   );
-// }
+      toast.success("File uploaded successfully");
+      setUploadDialogOpen(false);
+      setFile(null);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to upload file");
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
-import React from "react";
+  if (loading) {
+    return <div className="p-6 text-white">Loading...</div>;
+  }
 
-const StupidPage = () => {
-  return <div>StupidPage</div>;
-};
+  return (
+    <div className="space-y-10 p-6" style={{ backgroundColor: "#173236" }}>
+      <ToastContainer position="top-right" />
 
-export default StupidPage;
+      {/* Semua Transaksi */}
+      <section>
+        <h2 className="mb-4 text-xl font-bold" style={{ color: "#F5DFAD" }}>
+          All Transactions
+        </h2>
+        <div className="overflow-x-auto rounded border border-gray-600">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead style={{ color: "#F5DFAD" }}>ID</TableHead>
+                <TableHead style={{ color: "#F5DFAD" }}>Event</TableHead>
+                <TableHead style={{ color: "#F5DFAD" }}>Quantity</TableHead>
+                <TableHead style={{ color: "#F5DFAD" }}>Total Price</TableHead>
+                <TableHead style={{ color: "#F5DFAD" }}>Status</TableHead>
+                <TableHead style={{ color: "#F5DFAD" }}>Date</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {allTransactions.map((tx) => (
+                <TableRow key={tx.id}>
+                  <TableCell style={{ color: "#DDDEDF" }}>{tx.id}</TableCell>
+                  <TableCell style={{ color: "#DDDEDF" }}>
+                    {tx.event.name}
+                  </TableCell>
+                  <TableCell style={{ color: "#DDDEDF" }}>
+                    {tx.quantity}
+                  </TableCell>
+                  <TableCell style={{ color: "#DDDEDF" }}>
+                    Rp {tx.totalPrice.toLocaleString()}
+                  </TableCell>
+                  <TableCell style={{ color: "#DDDEDF" }}>
+                    {tx.status}
+                  </TableCell>
+                  <TableCell style={{ color: "#DDDEDF" }}>
+                    {new Date(tx.createdAt).toLocaleDateString("id-ID")}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </section>
+
+      {/* Waiting Payment */}
+      <section>
+        <h2 className="mb-4 text-xl font-bold" style={{ color: "#F5DFAD" }}>
+          Waiting for Payment
+        </h2>
+        <div className="overflow-x-auto rounded border border-gray-600">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead style={{ color: "#F5DFAD" }}>ID</TableHead>
+                <TableHead style={{ color: "#F5DFAD" }}>Event</TableHead>
+                <TableHead style={{ color: "#F5DFAD" }}>Quantity</TableHead>
+                <TableHead style={{ color: "#F5DFAD" }}>Total Price</TableHead>
+                <TableHead style={{ color: "#F5DFAD" }}>Status</TableHead>
+                <TableHead style={{ color: "#F5DFAD" }}>Date</TableHead>
+                <TableHead style={{ color: "#F5DFAD" }}>Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {waitingTransactions.map((tx) => (
+                <TableRow key={tx.id}>
+                  <TableCell style={{ color: "#DDDEDF" }}>{tx.id}</TableCell>
+                  <TableCell style={{ color: "#DDDEDF" }}>
+                    {tx.event.name}
+                  </TableCell>
+                  <TableCell style={{ color: "#DDDEDF" }}>
+                    {tx.quantity}
+                  </TableCell>
+                  <TableCell style={{ color: "#DDDEDF" }}>
+                    Rp {tx.totalPrice.toLocaleString()}
+                  </TableCell>
+                  <TableCell style={{ color: "#DDDEDF" }}>
+                    {tx.status}
+                  </TableCell>
+                  <TableCell style={{ color: "#DDDEDF" }}>
+                    {new Date(tx.createdAt).toLocaleDateString("id-ID")}
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      onClick={() => {
+                        setSelectedTransactionId(tx.id);
+                        setUploadDialogOpen(true);
+                      }}
+                      className="bg-[#E67F3C] hover:bg-[#2E5A61]"
+                    >
+                      Upload Proof
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </section>
+
+      {/* Dialog Upload */}
+      <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+        <DialogContent className="bg-[#173236] text-white">
+          <DialogHeader>
+            <DialogTitle>Upload Payment Proof</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input type="file" onChange={handleFileChange} accept="image/*" />
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setUploadDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleUpload}
+              disabled={isUploading}
+              className="bg-[#E67F3C] hover:bg-[#2E5A61]"
+            >
+              {isUploading ? "Uploading..." : "Upload"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

@@ -100,3 +100,28 @@ export interface WaitingConfirmationResponse {
   message: string;
   data: TransactionResponse[];
 }
+
+export interface Voucher {
+  code: string;
+  eventId: string;
+  discount: number;
+  maxDiscount: number;
+  quota: number;
+  expiredDate: string; // ISO date string
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string | null;
+}
+
+export interface OrganizerProfile {
+  id: string;
+  slug: string;
+  name: string;
+  email: string;
+  profilePicture: string;
+  ratings: number;
+  description: string;
+  isActivated: boolean;
+  createdAt: string;
+  updatedAt: string;
+}

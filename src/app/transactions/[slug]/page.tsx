@@ -78,7 +78,7 @@ const Transactions = ({ params }: { params: Promise<{ slug: string }> }) => {
                   (t) => t.id === selectedTicketId,
                 );
                 if (ticket) {
-                  let initialTotalPrice = ticket.price * quantity;
+                  const initialTotalPrice = ticket.price * quantity;
                   let discountValue =
                     (res.data.discount / 100) * initialTotalPrice;
 
@@ -109,7 +109,7 @@ const Transactions = ({ params }: { params: Promise<{ slug: string }> }) => {
                   (t) => t.id === selectedTicketId,
                 );
                 if (ticket) {
-                  let initialTotalPrice = ticket.price * quantity;
+                  const initialTotalPrice = ticket.price * quantity;
                   let discountValue =
                     (res.data.discount / 100) * initialTotalPrice;
 
@@ -204,7 +204,8 @@ const Transactions = ({ params }: { params: Promise<{ slug: string }> }) => {
       );
 
       const transactionId = res.data.data.id;
-      router.push(`/dashboard-user/paymentproof/${transactionId}`);
+      // router.push(`/dashboard-user/paymentproof/${transactionId}`);
+      router.push(`/dashboard-user/paymentproof/transactions/${transactionId}`);
     } catch (err) {
       console.error("Gagal membuat transaksi", err);
     } finally {

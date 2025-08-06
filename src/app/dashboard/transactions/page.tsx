@@ -1,247 +1,146 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { BackendTransaction } from "@/types/BackendTransaction";
-import type { ColumnDef } from "@tanstack/react-table";
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
-import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useAuthStore } from "@/store/useAuthStore";
+import { WaitingConfirmationResponse } from "@/types/event";
+import { axiosInstance } from "@/utils/axiosInstance";
+import { useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-type TxRow = {
+interface Transaction {
   id: string;
-  customer: string;
-  event: string;
-  amount: number;
-  seats: number;
-  proofUrl: string;
-  usedPoints?: number;
-  usedCoupon?: string;
-  usedVoucher?: string;
-};
-
-const columns: ColumnDef<TxRow>[] = [
-  { accessorKey: "id", header: "Order ID" },
-  { accessorKey: "customer", header: "Customer" },
-  { accessorKey: "event", header: "Event" },
-  {
-    accessorKey: "amount",
-    header: "Amount",
-    cell: ({ getValue }) => `Rp ${getValue<number>().toLocaleString()}`,
-  },
-  { accessorKey: "seats", header: "Seats" },
-  {
-    accessorKey: "usedPoints",
-    header: "Points",
-    cell: ({ getValue }) => (getValue<number>() ? getValue<number>() : "—"),
-  },
-  {
-    accessorKey: "usedCoupon",
-    header: "Coupon",
-    cell: ({ getValue }) => getValue<string>() || "—",
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => <TxActions {...row.original} />,
-  },
-];
-
-function TxActions(tx: TxRow) {
-  const [viewProof, setViewProof] = useState(false);
-  const [confirm, setConfirm] = useState<null | {
-    action: "accept" | "reject";
-  }>(null);
-
-  const handleConfirm = () => {
-    console.log(`${confirm?.action} transaction ${tx.id}`);
-    setConfirm(null);
+  quantity: number;
+  totalPrice: number;
+  status: string;
+  event: {
+    name: string;
+    startDate: string;
   };
-
-  return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon">
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem onSelect={() => setViewProof(true)}>
-            View Proof
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => setConfirm({ action: "accept" })}>
-            Accept
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onSelect={() => setConfirm({ action: "reject" })}
-            className="text-red-600"
-          >
-            Reject
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      <Dialog open={viewProof} onOpenChange={setViewProof}>
-        <DialogContent className="max-w-md border-[#2D4C51] bg-[#173236] text-white">
-          <DialogHeader>
-            <DialogTitle>Transfer Proof – {tx.id}</DialogTitle>
-          </DialogHeader>
-          <Image
-            src={tx.proofUrl}
-            alt="proof"
-            width={600}
-            height={400}
-            className="rounded-md"
-          />
-          <DialogFooter>
-            <Button onClick={() => setViewProof(false)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={!!confirm} onOpenChange={() => setConfirm(null)}>
-        <DialogContent className="border-[#2D4C51] bg-[#173236] text-white">
-          <DialogHeader>
-            <DialogTitle>Confirm {confirm?.action?.toUpperCase()}</DialogTitle>
-            <DialogDescription>
-              Transaction {tx.id} will be marked as {confirm?.action}.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setConfirm(null)}>
-              Cancel
-            </Button>
-            <Button onClick={handleConfirm} className="bg-[#E67F3C]">
-              Confirm
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
-  );
+  user: {
+    name: string;
+    email: string;
+  };
+  TicketEventCategory: {
+    name: string;
+    price: number;
+  };
 }
 
-export default function TransactionsPage() {
-  const [data, setData] = useState<TxRow[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function WaitingConfirmationPage() {
+  const { accessToken } = useAuthStore();
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    async function fetchPendingTransactions() {
-      try {
-        const res = await fetch("/api/organizer/transactions/pending", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-
-        const json = await res.json();
-
-        const mapped: TxRow[] = (json.result as BackendTransaction[]).map(
-          (tx) => ({
-            id: tx.id,
-            customer: tx.user?.name ?? "Unknown",
-            event: tx.event?.name ?? "Unknown Event",
-            amount: tx.totalPrice,
-            seats: tx.totalTickets,
-            proofUrl: tx.paymentProofUrl,
-            usedPoints: tx.usedPoints ?? undefined,
-            usedCoupon: tx.coupon?.code ?? undefined,
-            usedVoucher: tx.voucher?.code ?? undefined,
-          }),
-        );
-
-        setData(mapped);
-      } catch (err) {
-        console.error("Failed to fetch transactions", err);
-      } finally {
-        setLoading(false);
-      }
+  const fetchTransactions = async () => {
+    try {
+      const res = await axiosInstance.get<WaitingConfirmationResponse>(
+        "/transaction/waiting-confirmation",
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        },
+      );
+      setTransactions(res.data.data);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to fetch transactions");
     }
+  };
 
-    fetchPendingTransactions();
-  }, []);
+  const handleUpdateStatus = async (
+    transactionId: string,
+    status: "DONE" | "REJECTED",
+  ) => {
+    try {
+      setLoading(true);
+      await axiosInstance.patch(
+        `/transaction/status/${transactionId}`,
+        { status },
+        { headers: { Authorization: `Bearer ${accessToken}` } },
+      );
+      toast.success(`Transaction status updated to ${status}`);
+      fetchTransactions();
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update transaction status");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
+
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <span className="loading loading-dots loading-3xl text-[#F5DFAD]" />
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6 text-white">
-      <h1 className="mb-4 text-2xl font-bold">Pending Transactions</h1>
-
-      <div className="rounded-md border border-[#2D4C51] bg-[#173236]">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((hg) => (
-              <TableRow key={hg.id}>
-                {hg.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
-                  </TableHead>
-                ))}
-              </TableRow>
+    <div className="p-6">
+      <ToastContainer position="top-right" />
+      <h1 className="mb-4 text-2xl font-bold text-[#F5DFAD]">
+        Waiting for Confirmation
+      </h1>
+      <div className="overflow-x-auto">
+        <table className="w-full table-auto border border-gray-300">
+          <thead className="bg-[#173236] text-[#F5DFAD]">
+            <tr>
+              <th className="border p-2">Event</th>
+              <th className="border p-2">Buyer</th>
+              <th className="border p-2">Ticket</th>
+              <th className="border p-2">Qty</th>
+              <th className="border p-2">Total</th>
+              <th className="border p-2">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {transactions.map((trx) => (
+              <tr key={trx.id}>
+                <td className="border p-2">{trx.event.name}</td>
+                <td className="border p-2">
+                  {trx.user.name} <br />
+                  <span className="text-xs text-[#DDDEDF]">
+                    {trx.user.email}
+                  </span>
+                </td>
+                <td className="border p-2">{trx.TicketEventCategory.name}</td>
+                <td className="border p-2">{trx.quantity}</td>
+                <td className="border p-2">
+                  {trx.totalPrice.toLocaleString("id-ID", {
+                    style: "currency",
+                    currency: "IDR",
+                    minimumFractionDigits: 0,
+                  })}
+                </td>
+                <td className="flex justify-center gap-2 border p-2">
+                  <button
+                    disabled={loading}
+                    onClick={() => handleUpdateStatus(trx.id, "DONE")}
+                    className="rounded bg-green-500 px-3 py-1 text-white hover:bg-green-600"
+                  >
+                    Accept
+                  </button>
+                  <button
+                    disabled={loading}
+                    onClick={() => handleUpdateStatus(trx.id, "REJECTED")}
+                    className="rounded bg-red-500 px-3 py-1 text-white hover:bg-red-600"
+                  >
+                    Reject
+                  </button>
+                </td>
+              </tr>
             ))}
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="text-center">
-                  Loading...
-                </TableCell>
-              </TableRow>
-            ) : data.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="text-center">
-                  No pending transactions.
-                </TableCell>
-              </TableRow>
-            ) : (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
+            {transactions.length === 0 && (
+              <tr>
+                <td colSpan={6} className="p-4 text-center text-gray-500">
+                  No transactions are currently waiting for confirmation
+                </td>
+              </tr>
             )}
-          </TableBody>
-        </Table>
+          </tbody>
+        </table>
       </div>
     </div>
   );
