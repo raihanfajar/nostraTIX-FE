@@ -35,7 +35,6 @@ export interface Category {
   category: string;
 }
 
-
 export interface EventWithDetails {
   id: string;
   organizerId: string;
@@ -52,7 +51,7 @@ export interface EventWithDetails {
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date | null;
-  
+
   // Related entities from service include
   pictures: EventPicture[];
   ticketCategories: TicketCategory[];
@@ -73,4 +72,31 @@ export interface TicketCategory {
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date | null;
+}
+
+export interface TransactionResponse {
+  id: string;
+  quantity: number;
+  totalPrice: number;
+  status: string;
+  event: {
+    id: string;
+    name: string;
+    startDate: string;
+  };
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  TicketEventCategory: {
+    id: number;
+    name: string;
+    price: number;
+  };
+}
+
+export interface WaitingConfirmationResponse {
+  message: string;
+  data: TransactionResponse[];
 }
