@@ -23,7 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { dummyPendingTx, type TxRow } from "@/mock/dummyTransactions";
+import { BackendTransaction } from "@/types/BackendTransaction";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   flexRender,
@@ -32,7 +32,19 @@ import {
 } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+type TxRow = {
+  id: string;
+  customer: string;
+  event: string;
+  amount: number;
+  seats: number;
+  proofUrl: string;
+  usedPoints?: number;
+  usedCoupon?: string;
+  usedVoucher?: string;
+};
 
 const columns: ColumnDef<TxRow>[] = [
   { accessorKey: "id", header: "Order ID" },
@@ -60,7 +72,6 @@ const columns: ColumnDef<TxRow>[] = [
   },
 ];
 
-// Re-usable action column
 function TxActions(tx: TxRow) {
   const [viewProof, setViewProof] = useState(false);
   const [confirm, setConfirm] = useState<null | {
@@ -96,7 +107,6 @@ function TxActions(tx: TxRow) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* Proof modal */}
       <Dialog open={viewProof} onOpenChange={setViewProof}>
         <DialogContent className="max-w-md border-[#2D4C51] bg-[#173236] text-white">
           <DialogHeader>
@@ -115,7 +125,6 @@ function TxActions(tx: TxRow) {
         </DialogContent>
       </Dialog>
 
-      {/* Accept / Reject confirm */}
       <Dialog open={!!confirm} onOpenChange={() => setConfirm(null)}>
         <DialogContent className="border-[#2D4C51] bg-[#173236] text-white">
           <DialogHeader>
@@ -139,7 +148,44 @@ function TxActions(tx: TxRow) {
 }
 
 export default function TransactionsPage() {
-  const [data] = useState(() => dummyPendingTx); // later → useQuery(...)
+  const [data, setData] = useState<TxRow[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchPendingTransactions() {
+      try {
+        const res = await fetch("/api/organizer/transactions/pending", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        const json = await res.json();
+
+        const mapped: TxRow[] = (json.result as BackendTransaction[]).map(
+          (tx) => ({
+            id: tx.id,
+            customer: tx.user?.name ?? "Unknown",
+            event: tx.event?.name ?? "Unknown Event",
+            amount: tx.totalPrice,
+            seats: tx.totalTickets,
+            proofUrl: tx.paymentProofUrl,
+            usedPoints: tx.usedPoints ?? undefined,
+            usedCoupon: tx.coupon?.code ?? undefined,
+            usedVoucher: tx.voucher?.code ?? undefined,
+          }),
+        );
+
+        setData(mapped);
+      } catch (err) {
+        console.error("Failed to fetch transactions", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchPendingTransactions();
+  }, []);
 
   const table = useReactTable({
     data,
@@ -168,21 +214,32 @@ export default function TransactionsPage() {
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
-                {row.getVisibleCells().map((cell) => {
-                  console.log(cell);
-                  return (
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="text-center">
+                  Loading...
+                </TableCell>
+              </TableRow>
+            ) : data.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="text-center">
+                  No pending transactions.
+                </TableCell>
+              </TableRow>
+            ) : (
+              table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext(),
                       )}
                     </TableCell>
-                  );
-                })}
-              </TableRow>
-            ))}
+                  ))}
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </div>
