@@ -107,11 +107,12 @@ export function EventTabs({ event }: EventTabsProps) {
                 <>
                   <div
                     key={ticket.id}
-                    className="flex items-center justify-between"
+                    className="flex items-end justify-between"
                   >
                     <div className="space-y-1">
                       <div className="text-[#DDDEDF]">{ticket.name}</div>
                       <div className="text-[#DDDEDF]">{ticket.description}</div>
+                      <div className="text-[#DDDEDF]">Seat Avaible : {ticket.seatQuota}</div>
                     </div>
                     <div className="text-[#DDDEDF]">
                       {ticket.price === 0
@@ -129,7 +130,7 @@ export function EventTabs({ event }: EventTabsProps) {
               ))}
             </CardContent>
             <CardFooter className="flex justify-end">
-              <Link href={`/organizer/${event.slug}`}>
+              <Link href={`/transactions/${event.slug}`}>
                 <Button className="font-bitcount flex h-8 w-24 items-center justify-center rounded-lg border-2 border-[#2D4C51] bg-[#224046] text-[#F5DFAD] transition-colors hover:border-[#de5b28] hover:bg-[#F5DFAD] hover:text-[#224046]">
                   Buy Ticket
                 </Button>
