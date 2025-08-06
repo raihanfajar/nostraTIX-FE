@@ -1,5 +1,6 @@
 "use client";
 
+<<<<<<< HEAD
 import ViewAttendeesDialog from "@/components/Organizer/Events/ViewAttendeesDialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +17,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+=======
+import { useQuery } from "@tanstack/react-query";
+import { axiosInstance } from "@/utils/axiosInstance";
+import {
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+  type ColumnDef,
+} from "@tanstack/react-table";
+>>>>>>> main
 import {
   Table,
   TableBody,
@@ -24,6 +35,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+<<<<<<< HEAD
 import { useAuthStore } from "@/store/useAuthStore";
 import { axiosInstance } from "@/utils/axiosInstance";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -43,6 +55,23 @@ type EventRowReal = {
   id: string;
   name: string;
   description: string;
+=======
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { CreateEventDialog } from "@/components/orgsidebar/create-event-dialog";
+import { Button } from "@/components/ui/button";
+import { MoreHorizontal } from "lucide-react";
+import { useAuthStore } from "@/store/useAuthStore";
+
+// 🧠 1. Define the type (copy from backend)
+type EventRowReal = {
+  id: string;
+  name: string;
+>>>>>>> main
   category: string;
   country: string;
   city: string;
@@ -63,6 +92,10 @@ type EventsSummaryResponse = {
 
 const accessToken = useAuthStore.getState().accessToken;
 
+<<<<<<< HEAD
+=======
+// 📡 2. Fetch data using react-query
+>>>>>>> main
 const getEventsSummary = async (): Promise<EventRowReal[]> => {
   const res = await axiosInstance.get<EventsSummaryResponse>(
     "organizer/events/events-summary",
@@ -78,8 +111,62 @@ const useEventsSummary = () =>
     queryKey: ["organizer-events-summary"],
     queryFn: getEventsSummary,
   });
+<<<<<<< HEAD
+=======
 
+// 📊 3. Table column definitions
+const columns: ColumnDef<EventRowReal>[] = [
+  // { accessorKey: "id", header: "ID" },
+  { accessorKey: "name", header: "Title" },
+  { accessorKey: "category", header: "Category" },
+  {
+    accessorKey: "startDate",
+    header: "Start",
+    cell: ({ getValue }) =>
+      new Date(getValue<string>()).toLocaleDateString("id-ID"),
+  },
+  {
+    accessorKey: "endDate",
+    header: "End",
+    cell: ({ getValue }) =>
+      new Date(getValue<string>()).toLocaleDateString("id-ID"),
+  },
+  { accessorKey: "country", header: "Country" },
+  { accessorKey: "city", header: "City" },
+  { accessorKey: "location", header: "Location Detail" },
+  {
+    accessorKey: "ticketsSold",
+    header: "Tickets Sold",
+    cell: ({ getValue }) => getValue<number>().toLocaleString(),
+  },
+  {
+    accessorKey: "revenue",
+    header: "Revenue",
+    cell: ({ getValue }) => `Rp ${getValue<number>().toLocaleString()}`,
+  },
+  {
+    id: "actions",
+    cell: () => (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon">
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem>Edit</DropdownMenuItem>
+          <DropdownMenuItem>View Attendees</DropdownMenuItem>
+          <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    ),
+  },
+];
+>>>>>>> main
+
+// 🚀 4. Page Component
 export default function EventsPage() {
+<<<<<<< HEAD
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editData, setEditData] = useState<EventRowReal | null>(null);
   const [formData, setFormData] = useState({
@@ -225,6 +312,9 @@ export default function EventsPage() {
       },
     },
   ];
+=======
+  const { data = [], isLoading } = useEventsSummary();
+>>>>>>> main
 
   const table = useReactTable({
     data,
@@ -232,12 +322,20 @@ export default function EventsPage() {
     getCoreRowModel: getCoreRowModel(),
   });
 
+<<<<<<< HEAD
   if (isPending) {
+=======
+  if (isLoading) {
+>>>>>>> main
     return <div className="p-6 text-white">Loading events...</div>;
   }
 
   return (
+<<<<<<< HEAD
     <div className="zoom-out-85 p-6 text-white">
+=======
+    <div className="p-6 text-white zoom-out-85">
+>>>>>>> main
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-bold">My Events</h1>
         <Button
