@@ -190,12 +190,10 @@
 //   );
 // }
 
-import React from 'react'
+import React from "react";
 
 const StupidPage = () => {
-  return (
-    <div>StupidPage</div>
-  )
-}
+  return <div>StupidPage</div>;
+};
 
-export default StupidPage
+export default StupidPage;
