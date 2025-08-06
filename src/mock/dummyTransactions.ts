@@ -7,6 +7,7 @@ export type TxRow = {
     proofUrl: string;
     usedPoints?: number;
     usedCoupon?: string;
+    usedVoucher?: string;
 };
 
 export const dummyPendingTx: TxRow[] = [
@@ -19,13 +20,17 @@ export const dummyPendingTx: TxRow[] = [
         proofUrl: "/dummy-proof-1.jpg",
         usedPoints: 10_000,
         usedCoupon: "CUPON123",
+        usedVoucher: "VOUCHER456",
     },
     {
         id: "#TX-1002",
-        customer: "Bames Jond",
-        event: "Festival Babi (Comeback Edition)",
-        amount: 350_000,
-        seats: 1,
-        proofUrl: "/dummy-proof-2.jpg",
+        customer: "ANjing",
+        event: "Festival anjing",
+        amount: 200_000,
+        seats: 100,
+        proofUrl: "/dummy-proof-1.jpg",
+        usedPoints: 10_000,
+        usedCoupon: "CUPON839",
+        usedVoucher: "VOUCHER894",
     },
 ];
