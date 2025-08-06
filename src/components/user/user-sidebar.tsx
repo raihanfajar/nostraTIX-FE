@@ -5,7 +5,7 @@ import {
   ChevronUp,
   Home,
   Inbox,
-  Settings,
+  SettingsIcon,
   User2,
 } from "lucide-react";
 
@@ -30,16 +30,11 @@ import {
 } from "../ui/dropdown-menu";
 
 // Menu items.
-const orgNav = [
+const userNav = [
   {
     title: "Overview",
     url: "./overview",
     icon: Home,
-  },
-  {
-    title: "My Events",
-    url: "./events",
-    icon: Calendar,
   },
   {
     title: "Transactions",
@@ -47,13 +42,18 @@ const orgNav = [
     icon: Inbox,
   },
   {
+    title: "Tickets",
+    url: "./tickets",
+    icon: Calendar,
+  },
+  {
     title: "Profile",
     url: "./profile",
-    icon: Settings,
+    icon: SettingsIcon,
   },
 ];
 
-export function AppSidebar() {
+export function UserSidebar() {
   const { name } = useAuthStore();
   const { clearAuth } = useAuthStore();
   return (
@@ -61,11 +61,11 @@ export function AppSidebar() {
       <SidebarContent className="border-r border-[#1F3A3E] bg-[#102A2E] text-gray-200">
         <SidebarGroup>
           <SidebarGroupLabel className="text-white">
-            Nostraboard
+            User Dashboard
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {orgNav.map((item) => (
+              {userNav.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     className="transition-colors duration-200 hover:bg-[#1C3B40] hover:text-white"
@@ -92,11 +92,14 @@ export function AppSidebar() {
                   <ChevronUp className="ml-auto" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent side="top" className="bg-[#102A2E] text-white">
+              <DropdownMenuContent
+                side="top"
+                className="bg-[#102A2E] text-white"
+              >
                 <DropdownMenuItem
                   onClick={() => {
                     clearAuth();
-                    window.location.href = "/login/organizer";
+                    window.location.href = "/login";
                   }}
                 >
                   <span>Sign out</span>

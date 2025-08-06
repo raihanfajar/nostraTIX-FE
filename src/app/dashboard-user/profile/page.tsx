@@ -1,6 +1,5 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -12,17 +11,15 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { useOrganizerProfile } from "@/hooks/organizer/useOrganizerProfile";
+import { useUserProfile } from "@/hooks/user/useUserProfile";
 import { useAuthStore } from "@/store/useAuthStore";
 import { axiosInstance } from "@/utils/axiosInstance";
 import { useQueryClient } from "@tanstack/react-query";
-import { Camera } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 export default function ProfilePage() {
-  const { data: profile, isLoading, error } = useOrganizerProfile();
+  const { data: profile, isLoading, error } = useUserProfile();
   const queryClient = useQueryClient();
   const { accessToken } = useAuthStore();
 
@@ -30,7 +27,6 @@ export default function ProfilePage() {
   const [form, setForm] = useState({
     name: "",
     email: "",
-    description: "",
   });
 
   /* password-dialog fields */
@@ -47,10 +43,10 @@ export default function ProfilePage() {
   /* save profile */
   const handleSave = async () => {
     try {
-      await axiosInstance.patch("organizer/profile/update", form, {
+      await axiosInstance.patch("user/profile/update", form, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
-      queryClient.invalidateQueries({ queryKey: ["organizerProfile"] });
+      queryClient.invalidateQueries({ queryKey: ["userProfile"] });
       setEdit(false);
       toast.success("Profile updated");
     } catch {
@@ -70,7 +66,7 @@ export default function ProfilePage() {
     }
     try {
       await axiosInstance.patch(
-        "organizer/profile/change-password",
+        "user/profile/change-password",
         { password: newPw, currentPassword: currentPw },
         { headers: { Authorization: `Bearer ${accessToken}` } },
       );
@@ -88,24 +84,6 @@ export default function ProfilePage() {
   return (
     <div className="space-y-6 p-6">
       <h1 className="text-2xl font-bold text-white">Profile</h1>
-
-      {/* Avatar row */}
-      <div className="flex items-center gap-4">
-        <Avatar className="h-20 w-20">
-          <AvatarImage
-            src={profile?.profilePicture || "/avatar-placeholder.jpg"}
-          />
-          <AvatarFallback>FB</AvatarFallback>
-        </Avatar>
-        <Button
-          variant="outline"
-          size="sm"
-          className="font-bitcount border-[#E67F3C] bg-black text-[#E67F3C] hover:bg-black hover:text-white"
-        >
-          <Camera className="mr-2 h-4 w-4" />
-          Change Photo
-        </Button>
-      </div>
 
       {/* Account Info Card */}
       <Card className="border-[#2D4C51] bg-[#173236]">
@@ -150,26 +128,6 @@ export default function ProfilePage() {
             ) : (
               <p className="mt-1 font-medium text-[#DDDEDF]">
                 {profile?.email}
-              </p>
-            )}
-          </div>
-
-          {/* Description */}
-          <div>
-            <Label className="text-md font-medium text-blue-400">
-              Description
-            </Label>
-            {edit ? (
-              <Textarea
-                value={form.description}
-                onChange={(e) =>
-                  setForm({ ...form, description: e.target.value })
-                }
-                className="mt-1 min-h-fit bg-[#F5DFAD] text-[#173236]"
-              />
-            ) : (
-              <p className="mt-1 font-medium text-[#DDDEDF]">
-                {profile?.description}
               </p>
             )}
           </div>
