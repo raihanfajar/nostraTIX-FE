@@ -178,7 +178,7 @@ const Transactions = ({ params }: { params: Promise<{ slug: string }> }) => {
     setIsLoading(true);
 
     try {
-      const res = await axiosInstance.post<{
+      await axiosInstance.post<{
         message: string;
         data: { id: string };
       }>(
