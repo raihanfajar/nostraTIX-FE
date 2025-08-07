@@ -178,7 +178,7 @@ const Transactions = ({ params }: { params: Promise<{ slug: string }> }) => {
     setIsLoading(true);
 
     try {
-      const res = await axiosInstance.post<{
+      await axiosInstance.post<{
         message: string;
         data: { id: string };
       }>(
@@ -203,9 +203,7 @@ const Transactions = ({ params }: { params: Promise<{ slug: string }> }) => {
         },
       );
 
-      const transactionId = res.data.data.id;
-      // router.push(`/dashboard-user/paymentproof/${transactionId}`);
-      router.push(`/dashboard-user/paymentproof/transactions/${transactionId}`);
+      router.push(`/dashboard-user/transactions`);
     } catch (err) {
       console.error("Gagal membuat transaksi", err);
     } finally {

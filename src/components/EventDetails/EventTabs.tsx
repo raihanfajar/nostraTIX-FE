@@ -129,7 +129,7 @@ export function EventTabs({ event }: EventTabsProps) {
               ))}
             </CardContent>
             <CardFooter className="flex justify-end">
-              <Link href={`/dashboard-user/transactions`}>
+              <Link href={`/transactions/${event.slug}`}>
                 <Button className="font-bitcount flex h-8 w-24 items-center justify-center rounded-lg border-2 border-[#2D4C51] bg-[#224046] text-[#F5DFAD] transition-colors hover:border-[#de5b28] hover:bg-[#F5DFAD] hover:text-[#224046]">
                   Buy Ticket
                 </Button>
