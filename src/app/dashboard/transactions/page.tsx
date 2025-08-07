@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
+import { useState } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { WaitingConfirmationResponse } from "@/types/event";
 import { axiosInstance } from "@/utils/axiosInstance";
-import { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -68,8 +66,6 @@ export default function WaitingConfirmationPage() {
       setLoading(false);
     }
   };
-
-
 
   if (loading) {
     return (
