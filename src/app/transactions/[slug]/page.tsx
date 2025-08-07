@@ -203,8 +203,6 @@ const Transactions = ({ params }: { params: Promise<{ slug: string }> }) => {
         },
       );
 
-      const transactionId = res.data.data.id;
-      // router.push(`/dashboard-user/paymentproof/${transactionId}`);
       router.push(`/dashboard-user/transactions`);
     } catch (err) {
       console.error("Gagal membuat transaksi", err);
