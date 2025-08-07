@@ -100,9 +100,7 @@ const CreateEvent = () => {
       ],
     },
     validationSchema: createEventVS,
-    validateOnMount: true,
-    validateOnBlur: true,
-    validateOnChange: true,
+
     onSubmit: async (values, { setSubmitting }) => {
       try {
         console.log("Starting form submission");
@@ -520,9 +518,16 @@ const CreateEvent = () => {
                       type="number"
                       min="0"
                       name={`ticketCategories.${index}.price`}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
                       value={ticket.price}
+                      onChange={(e) => {
+                        const val =
+                          e.target.value === "" ? "" : Number(e.target.value);
+                        formik.setFieldValue(
+                          `ticketCategories.${index}.price`,
+                          val,
+                        );
+                      }}
+                      onBlur={formik.handleBlur}
                       className="mt-1 block w-full rounded-md border border-gray-300 p-2"
                     />
                     {categoryTouched.price && categoryErrors.price && (
@@ -541,9 +546,16 @@ const CreateEvent = () => {
                       type="number"
                       min="1"
                       name={`ticketCategories.${index}.seatQuota`}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
                       value={ticket.seatQuota}
+                      onChange={(e) => {
+                        const val =
+                          e.target.value === "" ? "" : Number(e.target.value);
+                        formik.setFieldValue(
+                          `ticketCategories.${index}.seatQuota`,
+                          val,
+                        );
+                      }}
+                      onBlur={formik.handleBlur}
                       className="mt-1 block w-full rounded-md border border-gray-300 p-2"
                     />
                     {categoryTouched.seatQuota && categoryErrors.seatQuota && (
@@ -562,7 +574,8 @@ const CreateEvent = () => {
         <div className="flex justify-end pt-5">
           {/* <pre className="text-xs text-red-500">
             {JSON.stringify(formik.errors, null, 2)}
-          </pre> */} {/* Uncomment for debugging */}
+          </pre> */}{" "}
+          {/* Uncomment for debugging */}
           <button
             type="submit"
             disabled={formik.isSubmitting}

@@ -93,7 +93,8 @@ export const createEventVS = Yup.object().shape({
 
         price: Yup.number()
           .typeError("Price must be a number.")
-          .required("Price is required. (use 0 for free tickets)"),
+          .required("Price is required. (use 0 for free tickets)")
+          .min(0, "Price must be 0 or higher"),
 
         seatQuota: Yup.number()
           .typeError("Seat quota must be a number.")

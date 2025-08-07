@@ -37,6 +37,7 @@ import { MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { Voucher } from "@/types/event";
 
 // 🧠 Type
 type EventRowReal = {
@@ -83,6 +84,7 @@ const useEventsSummary = () =>
 export default function EventsPage() {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editData, setEditData] = useState<EventRowReal | null>(null);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     category: "",
@@ -90,6 +92,18 @@ export default function EventsPage() {
     startDate: "",
     endDate: "",
   });
+
+  const [voucherData, setVoucherData] = useState({
+    code: "",
+    discount: "",
+    maxDiscount: "",
+    quota: "",
+    expiredDate: "",
+  });
+
+  const [voucherDialog, setVoucherDialog] = useState(false);
+  const [voucherCatalog, setVoucherCatalog] = useState(false);
+  const [voucherList, setVoucherList] = useState<Voucher[]>([]);
 
   const router = useRouter();
   const { data = [], isPending } = useEventsSummary();
@@ -145,6 +159,37 @@ export default function EventsPage() {
     },
     onError: () => {
       toast.error("Failed to update event");
+    },
+  });
+
+  const { mutate: voucherEditEvent } = useMutation({
+    mutationFn: async () => {
+      const payload = {
+        ...voucherData,
+        eventId: selectedEventId, // ✅ tambahkan eventId dari event yang sedang aktif
+        expiredDate: new Date(voucherData.expiredDate).toISOString(),
+      };
+
+      console.log("Sending payload:", payload);
+
+      const res = await axiosInstance.post(
+        `/transaction/create/voucher`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      );
+
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success("Voucher create succesfully");
+      setVoucherDialog(false);
+    },
+    onError: () => {
+      toast.error("Failed to create voucher");
     },
   });
 
@@ -209,6 +254,38 @@ export default function EventsPage() {
               <ViewAttendeesDialog eventId={eventId}>
                 <DropdownMenuItem>View Attendees</DropdownMenuItem>
               </ViewAttendeesDialog>
+
+              <DropdownMenuItem
+                onClick={() => {
+                  setVoucherDialog(true);
+                  setSelectedEventId(eventId);
+                }}
+              >
+                Add Voucher
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                onClick={async () => {
+                  setSelectedEventId(eventId);
+                  setVoucherCatalog(true);
+
+                  try {
+                    const res = await axiosInstance.get<Voucher[]>(
+                      `/transaction/voucher`,
+                      {
+                        params: { eventId },
+                        headers: { Authorization: `Bearer ${accessToken}` },
+                      },
+                    );
+                    setVoucherList(res.data);
+                  } catch (error) {
+                    console.log(error);
+                    toast.error("Failed to load vouchers");
+                  }
+                }}
+              >
+                See Voucher
+              </DropdownMenuItem>
 
               <DropdownMenuItem
                 className="text-red-600"
@@ -359,6 +436,125 @@ export default function EventsPage() {
               Save
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ✨ Voucher Dialog */}
+      <Dialog open={voucherDialog} onOpenChange={setVoucherDialog}>
+        <DialogContent className="bg-[#173236] text-white">
+          <DialogHeader>
+            <DialogTitle>Add Voucher</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium">Voucher Code</label>
+              <Input
+                placeholder="Voucher Code"
+                value={voucherData.code}
+                onChange={(e) =>
+                  setVoucherData((prev) => ({ ...prev, code: e.target.value }))
+                }
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">Discount Percentage</label>
+              <Input
+                placeholder="Disckon Percentage"
+                value={voucherData.discount}
+                onChange={(e) =>
+                  setVoucherData((prev) => ({
+                    ...prev,
+                    discount: e.target.value,
+                  }))
+                }
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">Max Discount</label>
+              <Input
+                placeholder="Max Discount"
+                value={voucherData.maxDiscount}
+                onChange={(e) =>
+                  setVoucherData((prev) => ({
+                    ...prev,
+                    maxDiscount: e.target.value,
+                  }))
+                }
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">Qouta</label>
+              <Input
+                placeholder="Qouta"
+                value={voucherData.quota}
+                onChange={(e) =>
+                  setVoucherData((prev) => ({
+                    ...prev,
+                    quota: e.target.value,
+                  }))
+                }
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">Expired Date</label>
+              <Input
+                type="date"
+                value={voucherData.expiredDate}
+                onChange={(e) =>
+                  setVoucherData((prev) => ({
+                    ...prev,
+                    expiredDate: e.target.value,
+                  }))
+                }
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              onClick={() => setVoucherDialog(false)}
+              className="font-bitcount flex h-8 w-24 items-center justify-center rounded-lg border-2 border-[#2D4C51] bg-[#224046] text-[#F5DFAD] transition-colors hover:border-[#de5b28] hover:bg-[#F5DFAD] hover:text-[#224046]"
+            >
+              Cancel
+            </Button>
+            <Button
+              className="font-bitcount flex h-8 w-24 items-center justify-center rounded-lg border-2 border-[#2D4C51] bg-[#224046] text-[#F5DFAD] transition-colors hover:border-[#de5b28] hover:bg-[#F5DFAD] hover:text-[#224046]"
+              onClick={() => voucherEditEvent()}
+            >
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ✨ Voucher Dialog */}
+      <Dialog open={voucherCatalog} onOpenChange={setVoucherCatalog}>
+        <DialogContent className="bg-[#173236] text-white">
+          <DialogHeader>
+            <DialogTitle>Voucher Catalog</DialogTitle>
+          </DialogHeader>
+
+          <div>
+            {voucherList.length === 0 ? (
+              <p className="text-sm text-gray-400">No vouchers found</p>
+            ) : (
+              <ul className="list-disc pl-5">
+                {voucherList.map((v: Voucher) => (
+                  <li key={v.code} className="text-sm">
+                    <span className="font-semibold">{v.code}</span> -{" "}
+                    {v.discount}% off, max {v.maxDiscount}, quota {v.quota},
+                    expires{" "}
+                    {new Date(v.expiredDate).toLocaleDateString("id-ID")}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>

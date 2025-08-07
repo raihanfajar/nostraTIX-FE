@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
 import { useAuthStore } from "@/store/useAuthStore";
 import { WaitingConfirmationResponse } from "@/types/event";
 import { axiosInstance } from "@/utils/axiosInstance";
