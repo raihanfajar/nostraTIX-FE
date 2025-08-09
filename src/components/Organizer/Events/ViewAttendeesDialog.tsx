@@ -7,8 +7,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useAuthStore } from "@/store/useAuthStore";
+import { axiosInstance } from "@/utils/axiosInstance";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import dayjs from "dayjs";
 import { useState } from "react";
 
@@ -35,9 +36,17 @@ type AttendeeResponse = {
   };
 };
 
+const { accessToken } = useAuthStore.getState();
+
 const fetchAttendees = async (eventId: string): Promise<Attendee[]> => {
-  const res = await axios.get<AttendeeResponse>(
-    `/organizer/events/${eventId}/attendees`,
+  console.log("Fetching attendees for event:", eventId);
+  const res = await axiosInstance.get<AttendeeResponse>(
+    `organizer/events/${eventId}/attendees`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
   );
   return res.data.result.data;
 };
