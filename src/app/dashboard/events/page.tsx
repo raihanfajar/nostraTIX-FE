@@ -9,13 +9,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -25,6 +25,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useAuthStore } from "@/store/useAuthStore";
+import { Voucher } from "@/types/event";
+import { EventRowReal, EventsSummaryResponse } from "@/types/eventDashboard";
 import { axiosInstance } from "@/utils/axiosInstance";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -37,30 +39,6 @@ import { MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { Voucher } from "@/types/event";
-
-// 🧠 Type
-type EventRowReal = {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  country: string;
-  city: string;
-  location: string;
-  ticketsSold: number;
-  revenue: number;
-  startDate: string;
-  endDate: string;
-};
-
-type EventsSummaryResponse = {
-  result: {
-    status: string;
-    message: string;
-    data: EventRowReal[];
-  };
-};
 
 const accessToken = useAuthStore.getState().accessToken;
 
@@ -109,7 +87,7 @@ export default function EventsPage() {
   const { data = [], isPending } = useEventsSummary();
   const queryClient = useQueryClient();
 
-  const { mutate: handleDeleteEvent } = useMutation({
+  const { mutateAsync: handleDeleteEvent } = useMutation({
     mutationFn: async (eventId: string) => {
       const res = await axiosInstance.delete(
         `organizer/events/delete/${eventId}`,
@@ -252,7 +230,13 @@ export default function EventsPage() {
               </DropdownMenuItem>
 
               <ViewAttendeesDialog eventId={eventId}>
-                <DropdownMenuItem>View Attendees</DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={(e) => {
+                    e.preventDefault();
+                  }}
+                >
+                  View Attendees
+                </DropdownMenuItem>
               </ViewAttendeesDialog>
 
               <DropdownMenuItem
@@ -334,7 +318,7 @@ export default function EventsPage() {
             {table.getHeaderGroups().map((hg) => (
               <TableRow key={hg.id}>
                 {hg.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead className="text-[#E67F3C]" key={header.id}>
                     {flexRender(
                       header.column.columnDef.header,
                       header.getContext(),
