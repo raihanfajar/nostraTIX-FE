@@ -46,6 +46,8 @@ export default function WaitingConfirmationPage() {
     }
   };
 
+  fetchTransactions();
+
   const handleUpdateStatus = async (
     transactionId: string,
     status: "DONE" | "REJECTED",
@@ -96,16 +98,16 @@ export default function WaitingConfirmationPage() {
           <tbody>
             {transactions.map((trx) => (
               <tr key={trx.id}>
-                <td className="border p-2">{trx.event.name}</td>
-                <td className="border p-2">
+                <td className="border p-2 text-white">{trx.event.name}</td>
+                <td className="border p-2 text-white">
                   {trx.user.name} <br />
                   <span className="text-xs text-[#DDDEDF]">
                     {trx.user.email}
                   </span>
                 </td>
-                <td className="border p-2">{trx.TicketEventCategory.name}</td>
-                <td className="border p-2">{trx.quantity}</td>
-                <td className="border p-2">
+                <td className="border p-2 text-white">{trx.TicketEventCategory.name}</td>
+                <td className="border p-2 text-white">{trx.quantity}</td>
+                <td className="border p-2 text-white">
                   {trx.totalPrice.toLocaleString("id-ID", {
                     style: "currency",
                     currency: "IDR",
