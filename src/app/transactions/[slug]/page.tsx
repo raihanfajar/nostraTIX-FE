@@ -55,6 +55,17 @@ const Transactions = ({ params }: { params: Promise<{ slug: string }> }) => {
     deletedAt: string | null;
   }
 
+  interface Coupon {
+    code: string;
+    discount: number;
+    quota: number;
+    maxDiscount: number;
+    expiredDate: string;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt: string | null;
+  }
+
   // Fetch Event & Check voucher/coupon
   useEffect(() => {
     let timeout: NodeJS.Timeout;
@@ -67,11 +78,17 @@ const Transactions = ({ params }: { params: Promise<{ slug: string }> }) => {
 
         timeout = setTimeout(async () => {
           try {
+            const eventData = await getEventBySlug(resolvedParams.slug);
+            if (!eventData) throw new Error("Event not found");
+            setEvent(eventData);
+
+            // --- VOUCHER ---
             if (voucherCode.trim()) {
-              const res = await axiosInstance.get<Voucher>(
-                `/transaction/voucher/check?code=${voucherCode}`,
-              );
-              if (res.status >= 200 && res.status < 300) {
+              try {
+                const res = await axiosInstance.get<Voucher>(
+                  `/transaction/voucher/check?code=${voucherCode}`,
+                );
+                // axios sudah throw kalau non-2xx, jadi cek status sebenarnya tidak wajib
                 setStatusVoucher("valid");
 
                 const ticket = eventData.ticketCategories.find(
@@ -81,16 +98,18 @@ const Transactions = ({ params }: { params: Promise<{ slug: string }> }) => {
                   const initialTotalPrice = ticket.price * quantity;
                   let discountValue =
                     (res.data.discount / 100) * initialTotalPrice;
-
-                  if (discountValue >= res.data.maxDiscount) {
+                  if (discountValue >= res.data.maxDiscount)
                     discountValue = res.data.maxDiscount;
-                  }
 
                   setVoucherDiscountValue(discountValue);
                   setVoucherDiscountText(
                     `Voucher valid get Rp.${discountValue.toLocaleString("id-ID")} off`,
                   );
                 }
+              } catch {
+                setStatusVoucher("invalid");
+                setVoucherDiscountValue(0);
+                setVoucherDiscountText(null);
               }
             } else {
               setStatusVoucher(null);
@@ -98,11 +117,12 @@ const Transactions = ({ params }: { params: Promise<{ slug: string }> }) => {
               setVoucherDiscountText(null);
             }
 
+            // --- COUPON ---
             if (couponCode.trim()) {
-              const res = await axiosInstance.get<Voucher>(
-                `/transaction/coupon/check?code=${couponCode}`,
-              );
-              if (res.status >= 200 && res.status < 300) {
+              try {
+                const res = await axiosInstance.get<Coupon>(
+                  `/transaction/coupon/check?code=${couponCode}`,
+                );
                 setStatusCoupon("valid");
 
                 const ticket = eventData.ticketCategories.find(
@@ -112,25 +132,28 @@ const Transactions = ({ params }: { params: Promise<{ slug: string }> }) => {
                   const initialTotalPrice = ticket.price * quantity;
                   let discountValue =
                     (res.data.discount / 100) * initialTotalPrice;
-
-                  if (discountValue >= res.data.maxDiscount) {
+                  if (discountValue >= res.data.maxDiscount)
                     discountValue = res.data.maxDiscount;
-                  }
 
                   setCouponDiscountValue(discountValue);
                   setCouponDiscountText(
                     `Coupon valid get Rp.${discountValue.toLocaleString("id-ID")} off`,
                   );
                 }
+              } catch {
+                setStatusCoupon("invalid");
+                setCouponDiscountValue(0);
+                setCouponDiscountText(null);
               }
             } else {
               setStatusCoupon(null);
               setCouponDiscountValue(0);
               setCouponDiscountText(null);
             }
-          } catch {
-            if (voucherCode.trim()) setStatusVoucher("invalid");
-            if (couponCode.trim()) setStatusCoupon("invalid");
+          } catch (err) {
+            setError(
+              err instanceof Error ? err.message : "Failed to fetch event",
+            );
           }
         }, 500);
       } catch (err) {
@@ -310,7 +333,7 @@ const Transactions = ({ params }: { params: Promise<{ slug: string }> }) => {
                 placeholder="Masukkan voucher"
                 value={voucherCode}
                 onChange={(e) => setVoucherCode(e.target.value)}
-                className="w-full rounded border p-2"
+                className="w-full rounded border p-2 text-white"
               />
               {statusVoucher === "invalid" && (
                 <p className="text-sm text-red-400">Voucher tidak ditemukan</p>
@@ -326,7 +349,7 @@ const Transactions = ({ params }: { params: Promise<{ slug: string }> }) => {
                 placeholder="Masukkan coupon"
                 value={couponCode}
                 onChange={(e) => setCouponCode(e.target.value)}
-                className="w-full rounded border p-2"
+                className="w-full rounded border p-2 text-white"
               />
               {statusCoupon === "invalid" && (
                 <p className="text-sm text-red-400">Coupon tidak ditemukan</p>
@@ -348,11 +371,11 @@ const Transactions = ({ params }: { params: Promise<{ slug: string }> }) => {
                   setPoint(0);
                 } else {
                   setPoint(
-                    (balancePoint ?? 0) >= 50000 ? 50000 : (balancePoint ?? 0),
+                    (balancePoint ?? 0) >= totalPrice ? totalPrice : 50000,
                   );
                 }
               }}
-              className={`font-bitcount flex h-10 w-48 items-center justify-center rounded-lg border-2 border-[#2D4C51] bg-[#224046] text-[#F5DFAD] transition-colors hover:border-[#de5b28] hover:bg-[#F5DFAD] hover:text-[#224046] ${
+              className={`font-bitcount flex h-10 w-auto items-center justify-center rounded-lg border-2 border-[#2D4C51] bg-[#224046] p-4 text-[#F5DFAD] transition-colors hover:border-[#de5b28] hover:bg-[#F5DFAD] hover:text-[#224046] ${
                 point > 0 ? "bg-green-600 text-white" : "bg-gray-500 text-white"
               }`}
             >
