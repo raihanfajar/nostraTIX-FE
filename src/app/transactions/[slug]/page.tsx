@@ -360,28 +360,39 @@ const Transactions = ({ params }: { params: Promise<{ slug: string }> }) => {
             </div>
           </div>
 
-          {/* Gunakan Point */}
+          {/* Use Points */}
           <div className="mt-6">
             <label className="mb-2 block text-[#F5DFAD]">
-              Gunakan Point (Max 50.000, saldo: {balancePoint})
+              Use Points (Max 50,000, balance:{" "}
+              {balancePoint?.toLocaleString("id-ID") || 0})
             </label>
             <button
+              type="button" // Always specify type for buttons in a form
               onClick={() => {
+                // Toggle logic
                 if (point > 0) {
-                  setPoint(0);
+                  setPoint(0); // If points are applied, remove them
                 } else {
-                  setPoint(
-                    (balancePoint ?? 0) >= totalPrice ? totalPrice : 50000,
+                  // Apply points based on the logic
+                  const maxPointsToUse = 50000;
+                  const pointsToApply = Math.min(
+                    balancePoint ?? 0,
+                    maxPointsToUse,
                   );
+                  setPoint(pointsToApply);
                 }
               }}
-              className={`font-bitcount flex h-10 w-auto items-center justify-center rounded-lg border-2 border-[#2D4C51] bg-[#224046] p-4 text-[#F5DFAD] transition-colors hover:border-[#de5b28] hover:bg-[#F5DFAD] hover:text-[#224046] ${
-                point > 0 ? "bg-green-600 text-white" : "bg-gray-500 text-white"
-              }`}
+              // FIX: Add the 'disabled' attribute
+              disabled={!balancePoint || balancePoint === 0}
+              className={`font-bitcount flex h-10 w-auto items-center justify-center rounded-lg border-2 border-[#2D4C51] p-4 text-[#F5DFAD] transition-colors ${
+                point > 0
+                  ? "bg-green-600 text-white hover:bg-green-700"
+                  : "bg-[#224046] hover:border-[#de5b28] hover:bg-[#F5DFAD] hover:text-[#224046]"
+              } // FIX: Add styling for the disabled state disabled:cursor-not-allowed disabled:border-gray-400 disabled:bg-gray-500 disabled:text-gray-300`}
             >
               {point > 0
-                ? `Menggunakan ${point.toLocaleString("id-ID")} Point`
-                : "Gunakan Point"}
+                ? `Using ${point.toLocaleString("id-ID")} Points`
+                : "Use Points"}
             </button>
           </div>
 

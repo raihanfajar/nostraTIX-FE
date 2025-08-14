@@ -7,6 +7,7 @@ import {
   Inbox,
   SettingsIcon,
   User2,
+  Star
 } from "lucide-react";
 
 import {
@@ -45,6 +46,11 @@ const userNav = [
     title: "Tickets",
     url: "./tickets",
     icon: Calendar,
+  },
+  {
+    title: "Reviews",
+    url: "./reviews",
+    icon: Star,
   },
   {
     title: "Profile",
