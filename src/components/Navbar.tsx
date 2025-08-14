@@ -10,7 +10,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 const Navbar = () => {
   /* 1. ALL hooks first, unconditionally */
   const pathname = usePathname();
-  const {name} = useAuthStore();
+  const { name } = useAuthStore();
   const { clearAuth } = useAuthStore();
   const isUserLoggedIn = useAuthStore((state) => !!state.accessToken);
 
@@ -20,7 +20,8 @@ const Navbar = () => {
     pathname !== "/register" &&
     pathname !== "/login/organizer" &&
     pathname !== "/register/organizer" &&
-    !pathname.includes("/dashboard");
+    !pathname.includes("/dashboard") &&
+    !pathname.includes("/reset-password");
 
   if (!showNavbar) return null;
 
@@ -62,7 +63,7 @@ const Navbar = () => {
             </div>
           ) : (
             <div className="hidden items-center justify-evenly gap-3 md:flex">
-              <div className="text-[#F5DFAD] text-xl mr-5">Hi, {name}</div>
+              <div className="mr-5 text-xl text-[#F5DFAD]">Hi, {name}</div>
               <Link href="/dashboard-user/overview">
                 <div className="font-bitcount flex h-8 w-24 items-center justify-center rounded-lg border-2 border-[#2D4C51] bg-[#224046] text-[#F5DFAD] transition-colors hover:border-[#de5b28] hover:bg-[#F5DFAD] hover:text-[#224046]">
                   Dashboard

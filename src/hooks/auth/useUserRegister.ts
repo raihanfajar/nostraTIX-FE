@@ -29,7 +29,7 @@ export function useUserRegister() {
 
         onSuccess: (data) => {
             toast.success(data.result.message);
-            router.replace("/");
+            router.replace("/login");
         },
         onError: () => {
             const message = 'Register Failed';
