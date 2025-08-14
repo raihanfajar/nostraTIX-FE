@@ -11,7 +11,9 @@ const Footer = () => {
   const showNavbar =
     pathname !== "/login" &&
     pathname !== "/register" &&
-    !pathname.includes("/dashboard"); // !Excluding dashboard (ghazi)
+    !pathname.includes("/dashboard") && // !Excluding dashboard (ghazi)
+    !pathname.includes("/reset-password") &&
+    !pathname.includes("/login/organizer");
 
   // 2. Jika kondisi tidak terpenuhi, render "tidak ada apa-apa"
   if (!showNavbar) {

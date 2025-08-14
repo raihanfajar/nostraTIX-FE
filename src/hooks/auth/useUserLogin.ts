@@ -37,8 +37,8 @@ export function useUserLogin() {
         onSuccess: (data) => {
             const { id, name, role, balancePoint, accessToken } = data.result.details;
             setAuth({ id, name, role, accessToken, balancePoint });
-            toast.success(data.result.message);
             router.replace("/");
+            toast.success(data.result.message);
         },
         onError: () => {
             const message = 'Login failed';
